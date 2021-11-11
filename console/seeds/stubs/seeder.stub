@@ -1,0 +1,12 @@
+const Seeder =  require('@ostro/database/seeder');
+
+class {{ class }} extends Seeder
+{
+
+    run()
+    {
+        //
+    }
+}
+
+module.exports = {{ class }}

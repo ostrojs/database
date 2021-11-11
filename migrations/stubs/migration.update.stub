@@ -1,0 +1,21 @@
+const Schema = require('@ostro/database/schema')
+const Migration = require('@ostro/database/migration')
+
+class {{ class }} extends Migration {
+
+    async up()
+    {
+        await Schema.table('{{ table }}', function (table) {
+            //
+        });
+    }
+
+    async down()
+    {
+        await Schema.table('{{ table }}', function (table) {
+            //
+        });
+    }
+}
+
+module.exports = {{ class }}

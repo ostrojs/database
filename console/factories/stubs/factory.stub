@@ -1,0 +1,18 @@
+const Factory = require('@ostro/database/eloquent/factories/factory');
+const {{model}} = require('{{ namespacedModel }}');
+
+class {{ factory }}Factory extends Factory
+{
+
+    $model = {{ model }};
+
+    definition()
+    {
+        return {   
+
+        }
+
+    }
+}
+
+module.exports = {{ factory }}Factory

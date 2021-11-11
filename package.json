@@ -1,0 +1,34 @@
+{
+  "name": "@ostro/database",
+  "version": "0.0.0-alpha.0",
+  "description": "Ostrojs database query builder",
+  "engines": {
+    "node": ">= 12.0"
+  },
+  "main": "database.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@ostro/contracts": "^0.0.0-alpha.0",
+    "@ostro/support": "^0.0.0-alpha.0",
+    "fs-extra": "^8.1.0",
+    "knex": "^0.20.8"
+  },
+  "keywords": [
+    "database",
+    "query builder",
+    "model",
+    "eloquent"
+  ],
+  "author": "amar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ostrojs/database.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ostrojs/database/issues"
+  },
+  "homepage": "https://github.com/ostrojs/database#readme"
+}
