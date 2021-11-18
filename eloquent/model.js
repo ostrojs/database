@@ -594,7 +594,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     async performDeleteOnModel() {
-        await this.setKeysForSaveQuery(this.newModelQuery()).$query.delete()
+        await this.$query.delete()
 
         this.$exists = false;
     }
