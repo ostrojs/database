@@ -1,7 +1,10 @@
 const Relation = require('../relations/relation')
 class QueriesRelationships {
 
-    has($relation, $operator = '>=', $count = 1, $boolean = 'and', $callback = null) {
+    has($relation, $operator = '>=', $count = 1, $boolean = 'and', $callback) {
+        $operator = typeof $operator != 'string' ? '>=' : $operator
+        $count = typeof $count != 'number' ? 1 : $count
+        $boolean = typeof $boolean != 'string' ? 'and' : $boolean
         if (is_string($relation)) {
             if (strpos($relation, '.') !== false) {
 
@@ -29,7 +32,9 @@ class QueriesRelationships {
         );
     }
 
-    hasNested($relations, $operator = '>=', $count = 1, $boolean = 'and', $callback = null) {
+    hasNested($relations, $operator = '>=', $count = 1, $boolean = 'and') {
+        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+
         $relations = $relations.split('.');
 
         let $doesntHave = $operator === '<' && $count === 1;
@@ -50,22 +55,30 @@ class QueriesRelationships {
     }
 
     orHas($relation, $operator = '>=', $count = 1) {
-        return this.has($relation, $operator, $count, 'or');
+        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+
+        return this.has($relation, $operator, $count, 'or', $callback);
     }
 
-    doesntHave($relation, $boolean = 'and', $callback = null) {
+    doesntHave($relation, $boolean = 'and') {
+        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+
         return this.has($relation, '<', 1, $boolean, $callback);
     }
 
-    orDoesntHave($relation) {
-        return this.doesntHave($relation, 'or');
+    orDoesntHave($relation, $callback) {
+        return this.doesntHave($relation, 'or',$callback);
     }
 
-    whereHas($relation, $callback = null, $operator = '>=', $count = 1) {
+    whereHas($relation, $operator = '>=', $count = 1) {
+        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+
         return this.has($relation, $operator, $count, 'and', $callback);
     }
 
-    orWhereHas($relation, $callback = null, $operator = '>=', $count = 1) {
+    orWhereHas($relation, $operator = '>=', $count = 1) {
+        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+
         return this.has($relation, $operator, $count, 'or', $callback);
     }
 
@@ -91,7 +104,9 @@ class QueriesRelationships {
         return $belongsTo;
     }
 
-    withAggregate($relations, $column, $function = null) {
+    withAggregate($relations, $column) {
+        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+
         if (empty($relations)) {
             return this;
         }
@@ -114,7 +129,7 @@ class QueriesRelationships {
 
             $relation = this.getRelationWithoutConstraints($name);
 
-            if ($function) {
+            if ($callback) {
                 $hashedColumn = this.getQuery().from === $relation.getQuery().getQuery().from ?
                     "{$relation.getRelationCountHash(false)}.$column" :
                     $column;
@@ -123,7 +138,7 @@ class QueriesRelationships {
                     $column === '*' ? $column : $relation.getRelated().qualifyColumn($hashedColumn)
                 );
 
-                $expression = $function === 'exists' ? $wrappedColumn : sprintf('%s(%s)', $function, $wrappedColumn);
+                $expression = $callback === 'exists' ? $wrappedColumn : sprintf('%s(%s)', $callback, $wrappedColumn);
             } else {
                 $expression = $column;
             }
@@ -145,17 +160,17 @@ class QueriesRelationships {
             }
 
             $alias = $alias || String.snake(
-                preg_replace('/[^[:alnum:][:space:]_]/u', '', "$name $function $column")
+                preg_replace('/[^[:alnum:][:space:]_]/u', '', "$name $callback $column")
             );
 
-            if ($function === 'exists') {
+            if ($callback === 'exists') {
                 this.selectRaw(
                     sprintf('exists(%s) as %s', $query.toSql(), this.getQuery().grammar.wrap($alias)),
                     $query.getBindings()
                 ).withCasts([$alias => 'bool']);
             } else {
                 this.selectSub(
-                    $function ? $query : $query.limit(1),
+                    $callback ? $query : $query.limit(1),
                     $alias
                 );
             }
@@ -164,8 +179,8 @@ class QueriesRelationships {
         return this;
     }
 
-    withCount($relations) {
-        return this.withAggregate(Array.isArray($relations) ? $relations : arguments, '*', 'count');
+    withCount($relations,$callback) {
+        return this.withAggregate(Array.isArray($relations) ? $relations : arguments, '*', 'count', $callback);
     }
 
     withMax($relation, $column) {
