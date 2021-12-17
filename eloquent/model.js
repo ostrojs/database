@@ -432,16 +432,11 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     toJSON() {
-        return this.toJson()
+        return this.serialize()
     }
 
     serialize() {
-        if (this.$attributes instanceof CollectionInterface) {
-            return this.toArray()
-        } else {
-            return this.toJson()
-        }
-
+        return this.toJson()
     }
 
     toJson() {
