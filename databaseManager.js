@@ -1,49 +1,18 @@
 require('@ostro/support/helpers')
 const knex = require('knex')
-const { Macroable } = require('@ostro/support/macro')
+const Manager = require('@ostro/support/manager')
 const InvalidArgumentException = require('@ostro/support/exceptions/invalidArgumentException')
 const DatabaseAdapter = require('./databaseAdapter')
-const kApp = Symbol('app')
-const kConnections = Symbol('connections')
-const kCustomCreators = Symbol('customCreators')
-class DatabaseManager extends Macroable {
+class DatabaseManager extends Manager {
 
-    constructor(app) {
-        super()
-        Object.defineProperties(this, {
-            [kApp]: {
-                value: app,
-            },
-            [kConnections]: {
-                value: Object.create(null),
-                writable: true
-            },
-            [kCustomCreators]: {
-                value: Object.create(null),
-                writable: true
-            },
-        })
-    }
+    $type = 'database';
 
     builder($name = null) {
-        $name = $name || this.getDefaultDriver();
-        return this[kConnections][$name] = this.getDriver($name);
+        return this.driver($name)
     }
 
     connection($driver) {
         return this.driver($driver)
-    }
-
-    driver($driver) {
-        return this.builder($driver);
-    }
-
-    config(key) {
-        return key ? this[kApp]['config']['database'][key] : this[kApp]['config']['database']
-    }
-
-    getDriver(name) {
-        return this[kConnections][name] || this.resolve(name);
     }
 
     resolve(name) {
@@ -52,20 +21,7 @@ class DatabaseManager extends Macroable {
         if (!($config)) {
             throw new InvalidArgumentException(`Database config  [{${name}}] is not defined.`);
         }
-        if ((this[kCustomCreators][$config['driver']])) {
-            return this.callCustomCreator($config, name);
-        } else {
-            let $driverMethod = 'create' + $config['driver'].ucfirst() + 'Driver';
-            if ((this[$driverMethod])) {
-                return this[$driverMethod]($config, name);
-            } else {
-                throw new InvalidArgumentException(`Driver [{${$config['driver']}}] is not supported.`);
-            }
-        }
-    }
-
-    callCustomCreator($config, $name) {
-        return this[kCustomCreators][$config['driver']];
+        return super.resolve(name, $config)
     }
 
     createSqliteDriver($config, $name) {
@@ -76,7 +32,7 @@ class DatabaseManager extends Macroable {
         return this.adapt(new(require('./adapter/mysql'))(knex, $config, $config['migrations']), require('./schema/mysqlSchema'), $name);
     }
 
-    createOracleDriver($config) {
+    createOracleDriver($config, $name) {
         return this.adapt(new(require('./adapter/oracle'))(knex, $config, $config['migrations']), require('./schema/Oracle'), $name);
     }
 
@@ -85,49 +41,24 @@ class DatabaseManager extends Macroable {
         return new DatabaseAdapter($database, Schema, $name);
     }
 
-    set($name, $driver) {
-        this[kConnections][$name] = $driver;
-        return this;
-    }
-
     repository($driver) {
         return this.adapt($driver);
     }
 
-    getPrefix($config = {}) {
-        return $config['prefix'] || this[kApp]['config']['database']['prefix'];
+    getPrefix() {
+        return this.getConfig(`prefix`);
     }
 
-    getConfig($name) {
-        return this[kApp]['config']['database']['connections'][$name];
-    }
-
-    getDefaultDriver() {
-        return this[kApp]['config']['database']['default'];
-    }
-
-    setDefaultDriver($name) {
-        this[kApp]['config']['database']['default'] = $name;
-    }
-
-    extends($driver, $callback) {
-        const config = this.getConfig($driver)
-        if (!config) {
-            throw new InvalidArgumentException(`Config not found for  [{${$driver}}] driver.`);
-        }
-        this[kCustomCreators][config['driver']] = $callback.call(this, this);
-        return this;
+    getConfig(name) {
+        return super.getConfig(`connections.${name}`);
     }
 
     registerCommands(dir) {
-        if (this[kApp].console && typeof this[kApp].console.load == 'function' && env('production')) {
-            this[kApp].console.load(dir);
+        if (this.$container.console && typeof this.$container.console.load == 'function' && env('production')) {
+            this.$container.console.load(dir);
         }
     }
 
-    __get(target, method) {
-        return this.make(target.driver(), method)
-    }
 }
 
 module.exports = DatabaseManager
