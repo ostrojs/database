@@ -2,23 +2,15 @@ const GeneratorCommand = require('@ostro/console/generatorCommand')
 const path = require('path')
 class MakeSeederCommand extends GeneratorCommand {
 
-    get $signature() {
-        return 'make:seeder';
-    }
+    $signature = 'make:seeder';
 
-    get $description() {
-        return 'Create a new seeder class'
-    };
+    $description = 'Create a new seeder class';
 
-    get $arguments() {
-        return [
-            this.createArgument('<name>', 'Class name for seed').required()
-        ]
-    }
+    $arguments = [
+        this.createArgument('<name>', 'Class name for seed').required()
+    ];
 
-    get $type() {
-        return 'Seeder';
-    }
+    $type = 'Seeder';
 
     getStub() {
         return this.resolveStubPath('/stubs/seeder.stub');

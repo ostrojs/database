@@ -1,10 +1,8 @@
 const Seeder =  require('@ostro/database/seeder');
 
-class {{ class }} extends Seeder
-{
+class {{ class }} extends Seeder {
 
-    run()
-    {
+    run() {
         //
     }
 }

@@ -2,24 +2,16 @@ const GeneratorCommand = require('@ostro/console/generatorCommand')
 
 class FactoryMakeCommand extends GeneratorCommand {
 
-    get $signature() {
-        return 'make:factory';
-    }
+    $signature = 'make:factory';
 
-    get $description() {
-        return 'Create a new model factory'
-    };
+    $description = 'Create a new model factory';
 
-    get $options() {
-        return [
-            this.createOption('-m, --model [model]', 'The name of the model'),
-            this.createOption('--force', 'Force the operation to run when in production'),
-        ]
-    }
+    $options = [
+        this.createOption('-m, --model [model]', 'The name of the model'),
+        this.createOption('--force', 'Force the operation to run when in production'),
+    ];
 
-    get $type() {
-        return 'Factory';
-    }
+    $type = 'Factory';
 
     getStub() {
         return this.resolveStubPath('/stubs/factory.stub');

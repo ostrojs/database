@@ -1,19 +1,13 @@
 const Command = require('@ostro/console/command')
 class InstallCommand extends Command {
 
-    get $signature() {
-        return 'migrate:install';
-    }
+    $signature = 'migrate:install';
 
-    get $description() {
-        return 'Create the migration repository'
-    }
+    $description = 'Create the migration repository';
 
-    get $options() {
-        return [
-            this.createOption('--database [database]', 'The database connection to use'),
-        ]
-    }
+    $options = [
+        this.createOption('--database [database]', 'The database connection to use'),
+    ];
 
     constructor($repository) {
         super()

@@ -1,22 +1,16 @@
 const Command = require('@ostro/console/command')
 class WipeCommand extends Command {
 
-    get $signature() {
-        return 'db:wipe';
-    }
+    $signature = 'db:wipe';
 
-    get $description() {
-        return 'Drop all tables, views, and types'
-    };
+    $description = 'Drop all tables, views, and types';
 
-    get $options() {
-        return [
-            this.createOption('--database', 'The database connection to use'),
-            this.createOption('--drop-views', 'Drop all tables and views'),
-            this.createOption('--drop-types', 'Drop all tables and types (Postgres only)'),
-            this.createOption('--force', 'Force the operation to run when in production'),
-        ]
-    }
+    $options = [
+        this.createOption('--database', 'The database connection to use'),
+        this.createOption('--drop-views', 'Drop all tables and views'),
+        this.createOption('--drop-types', 'Drop all tables and types (Postgres only)'),
+        this.createOption('--force', 'Force the operation to run when in production'),
+    ];
 
     async handle() {
         if (!this.input.getOption('force') && !await this.confirmToProceed()) {

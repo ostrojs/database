@@ -2,26 +2,19 @@ const BaseCommand = require('./baseCommand')
 
 class RollbackCommand extends BaseCommand {
 
-    get $signature() {
-        return 'migrate:rollback';
-    }
+    $signature = 'migrate:rollback';
 
-    get $description() {
-        return 'Rollback all database migrations'
-    }
+    $description = 'Rollback all database migrations';
 
-    get $options() {
-
-        return [
-            this.createOption('--database [database]', 'The database connection to use'),
-            this.createOption('--force', 'Force the operation to run when in production'),
-            this.createOption('--path [path]', 'The path(s) to the migrations files to be executed'),
-            this.createOption('--realpath [realpath]', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
-            this.createOption('--pretend', 'Dump the SQL queries that would be run'),
-            this.createOption('--step [step]', 'The number of migrations to be reverted'),
-        ]
-    }
-
+    $options = [
+        this.createOption('--database [database]', 'The database connection to use'),
+        this.createOption('--force', 'Force the operation to run when in production'),
+        this.createOption('--path [path]', 'The path(s) to the migrations files to be executed'),
+        this.createOption('--realpath [realpath]', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
+        this.createOption('--pretend', 'Dump the SQL queries that would be run'),
+        this.createOption('--step [step]', 'The number of migrations to be reverted'),
+    ];
+    
     constructor($migrator) {
         super()
 

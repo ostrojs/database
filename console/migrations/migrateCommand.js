@@ -9,26 +9,20 @@ class CreateMigration extends BaseCommand {
         this.$file = file;
     }
 
-    get $signature() {
-        return 'migrate';
-    }
+    $signature = 'migrate';
 
-    get $description() {
-        return 'migrate to database'
-    };
+    $description = 'migrate to database';
 
-    get $options() {
-        return [
-            this.createOption('--database=', 'The database connection to use'),
-            this.createOption('--force', 'Force the operation to run when in production'),
-            this.createOption('--path [path]', 'The path(s) to the migrations files to be executed'),
-            this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
-            this.createOption('--schema-path=', 'The path to a schema dump file'),
-            this.createOption('--pretend', 'Dump the SQL queries that would be run'),
-            this.createOption('--seed', 'Indicates if the seed task should be re-run'),
-            this.createOption('--step [step]', 'Force the migrations to be run so they can be rolled back individually')
-        ]
-    };
+    $options = [
+        this.createOption('--database=', 'The database connection to use'),
+        this.createOption('--force', 'Force the operation to run when in production'),
+        this.createOption('--path [path]', 'The path(s) to the migrations files to be executed'),
+        this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
+        this.createOption('--schema-path=', 'The path to a schema dump file'),
+        this.createOption('--pretend', 'Dump the SQL queries that would be run'),
+        this.createOption('--seed', 'Indicates if the seed task should be re-run'),
+        this.createOption('--step [step]', 'Force the migrations to be run so they can be rolled back individually')
+    ];
 
     handle() {
         return this.$migrator.usingConnection(this.input.option('database')).then(($connection) => {

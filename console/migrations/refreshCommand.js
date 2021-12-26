@@ -2,26 +2,19 @@ const Command = require('@ostro/console/command')
 
 class RefreshCommand extends Command {
 
-    get $signature() {
-        return 'migrate:refresh';
-    }
+    $signature = 'migrate:refresh';
 
-    get $description() {
-        return 'Reset and re-run all migrations'
-    }
+    $description = 'Reset and re-run all migrations';
 
-    get $options() {
-
-        return [
-            this.createOption('--database [database]', 'The database connection to use'),
-            this.createOption('--force', 'Force the operation to run when in production'),
-            this.createOption('--path', 'The path(s) to the migrations files to be executed'),
-            this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
-            this.createOption('--seed', 'Indicates if the seed task should be re-run'),
-            this.createOption('--seeder', 'The class name of the root seeder'),
-            this.createOption('--step', 'Force the migrations to be run so they can be rolled back individually'),
-        ]
-    }
+    $options = [
+        this.createOption('--database [database]', 'The database connection to use'),
+        this.createOption('--force', 'Force the operation to run when in production'),
+        this.createOption('--path', 'The path(s) to the migrations files to be executed'),
+        this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
+        this.createOption('--seed', 'Indicates if the seed task should be re-run'),
+        this.createOption('--seeder', 'The class name of the root seeder'),
+        this.createOption('--step', 'Force the migrations to be run so they can be rolled back individually'),
+    ];
 
     async handle() {
         if (!this.input.getOption('force') && !await this.confirmToProceed()) {
