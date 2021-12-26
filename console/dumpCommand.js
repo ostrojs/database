@@ -2,21 +2,15 @@ const Command = require('@ostro/console/command')
 
 class DumpCommand extends Command {
 
-    get $signature() {
-        return 'schema:dump';
-    }
+    $signature = 'schema:dump';
 
-    get $description() {
-        return 'Dump the given database schema'
-    };
+    $description = 'Dump the given database schema';
 
-    get $options() {
-        return [
-            this.createOption('--database [database]', 'The database connection to use'),
-            this.createOption('--path', 'The path where the schema dump file should be stored'),
-            this.createOption('--prune [prune]', 'Delete all existing migration files'),
-        ]
-    }
+    $options = [
+        this.createOption('--database [database]', 'The database connection to use'),
+        this.createOption('--path', 'The path where the schema dump file should be stored'),
+        this.createOption('--prune [prune]', 'Delete all existing migration files'),
+    ];
 
     constructor($connection, $file) {
         super()

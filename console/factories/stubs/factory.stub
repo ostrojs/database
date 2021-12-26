@@ -6,8 +6,7 @@ class {{ factory }}Factory extends Factory
 
     $model = {{ model }};
 
-    definition()
-    {
+    definition() {
         return {   
 
         }

@@ -9,27 +9,19 @@ class SeedCommand extends Command {
         this.$resolver = $resolver;
     }
 
-    get $signature() {
-        return 'db:seed';
-    }
+    $signature = 'db:seed';
 
-    get $description() {
-        return 'Seed the database with records'
-    };
+    $description = 'Seed the database with records';
 
-    get $options() {
-        return [
-            this.createOption('--file <file>', 'Enter seeder files name').default('database/seeders/databaseSeeder'),
-            this.createOption('--database <database>', 'The database connection to seed'),
-            this.createOption('--force <force>', 'Force the operation to run when in production')
-        ]
-    }
+    $options = [
+        this.createOption('--file <file>', 'Enter seeder files name').default('database/seeders/databaseSeeder'),
+        this.createOption('--database <database>', 'The database connection to seed'),
+        this.createOption('--force <force>', 'Force the operation to run when in production')
+    ];
 
-    get $arguments() {
-        return [
-            this.createArgument('<file>', 'Enter seeder files name')
-        ]
-    }
+    $arguments = [
+        this.createArgument('<file>', 'Enter seeder files name')
+    ];
 
     async handle() {
         if (!this.input.getOption('force') && !await this.confirmToProceed()) {

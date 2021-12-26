@@ -3,22 +3,16 @@ class DatabaseQuery extends Command {
 
     constructor(resolver) {
         super()
-        this.$resolver = resolver
+        this.$resolver = resolver;
     }
 
-    get $signature() {
-        return 'db:query';
-    }
+    $signature = 'db:query';
 
-    get $arguments() {
-        return [
-            this.createArgument('<query>', 'database query string').required()
-        ]
-    }
+    $arguments = [
+        this.createArgument('<query>', 'database query string').required()
+    ];
 
-    get $description() {
-        return 'database query'
-    };
+    $description = 'database query';
 
     handle() {
         return this.$resolver.query(this.input.argument('query')).then(res => {

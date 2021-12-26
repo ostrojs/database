@@ -3,24 +3,17 @@ const path = require('path')
 
 class ResetCommand extends BaseCommand {
 
-    get $signature() {
-        return 'migrate:reset';
-    }
+    $signature = 'migrate:reset';
 
-    get $description() {
-        return 'Rollback all database migrations'
-    }
+    $description = 'Rollback all database migrations';
 
-    get $options() {
-
-        return [
-            this.createOption('--database [database]', 'The database connection to use'),
-            this.createOption('--force', 'Force the operation to run when in production'),
-            this.createOption('--path', 'The path(s) to the migrations files to be executed'),
-            this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
-            this.createOption('--pretend', 'Dump the SQL queries that would be run'),
-        ]
-    }
+    $options = [
+        this.createOption('--database [database]', 'The database connection to use'),
+        this.createOption('--force', 'Force the operation to run when in production'),
+        this.createOption('--path', 'The path(s) to the migrations files to be executed'),
+        this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
+        this.createOption('--pretend', 'Dump the SQL queries that would be run'),
+    ];
 
     constructor($migrator) {
         super()

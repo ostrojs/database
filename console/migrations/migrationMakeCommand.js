@@ -9,25 +9,19 @@ class CreateSchema extends BaseCommand {
         this.$creator = $creator;
     }
 
-    get $signature() {
-        return 'make:migration';
-    }
+    $signature = 'make:migration';
 
-    get $description() {
-        return 'Create a new migration file'
-    };
+    $description = 'Create a new migration file';
 
-    get $options() {
-        return [
-            this.createOption('--database', 'The database connection to use'),
-            this.createOption('--create [create]', 'The table to be created'),
-            this.createOption('--table [table]', 'The table to migrate'),
-            this.createOption('--path', 'The location where the migration file should be created'),
-            this.createOption('--relativepath [path] ', 'The location where the migration file should be created'),
-            this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
-            this.createOption('--fullpath', 'Output the full path of the migration'),
-        ]
-    }
+    $options = [
+        this.createOption('--database', 'The database connection to use'),
+        this.createOption('--create [create]', 'The table to be created'),
+        this.createOption('--table [table]', 'The table to migrate'),
+        this.createOption('--path', 'The location where the migration file should be created'),
+        this.createOption('--relativepath [path] ', 'The location where the migration file should be created'),
+        this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
+        this.createOption('--fullpath', 'Output the full path of the migration'),
+    ];
 
     get $arguments() {
         return [

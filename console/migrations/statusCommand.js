@@ -2,22 +2,15 @@ const BaseCommand = require('./baseCommand')
 const Collection = require('@ostro/support/collection')
 class StatusCommand extends BaseCommand {
 
-    get $signature() {
-        return 'migrate:status';
-    }
+    $signature = 'migrate:status';
 
-    get $description() {
-        return 'Show the status of each migration'
-    }
-
-    get $options() {
-
-        return [
-            this.createOption('--database [database]', 'The database connection to use'),
-            this.createOption('--path', 'The path(s) to the migrations files to be executed'),
-            this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
-        ]
-    }
+    $description = 'Show the status of each migration';
+    
+    $options = [
+        this.createOption('--database [database]', 'The database connection to use'),
+        this.createOption('--path', 'The path(s) to the migrations files to be executed'),
+        this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
+    ];
 
     constructor($migrator) {
         super()
@@ -49,9 +42,7 @@ class StatusCommand extends BaseCommand {
         return (await this.getAllMigrationFiles())
             .map(($migration) => {
                 let $migrationName = this.$migrator.getMigrationName($migration);
-                return $ran.indexOf($migrationName) >= 0 ?
-                    ['<info>Yes</info>', $migrationName, $batches[$migrationName]] :
-                    ['<fg=red>No</fg=red>', $migrationName];
+                return $ran.indexOf($migrationName) >= 0 ? ['<info>Yes</info>', $migrationName, $batches[$migrationName]] : ['<fg=red>No</fg=red>', $migrationName];
             });
     }
 
