@@ -3,7 +3,7 @@ class Mysql {
 
         connection.port = Number(connection.port)
         return client({
-            client: 'mysql',
+            client: connection.package || 'mysql',
             connection: {
                 host: connection.host,
                 port: connection.port,
