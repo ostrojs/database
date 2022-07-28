@@ -29,7 +29,10 @@ class DatabaseManager extends Manager {
     }
 
     createMysqlDriver($config, $name) {
-        return this.adapt(new(require('./adapter/mysql'))(knex, $config, $config['migrations']), require('./schema/mysqlSchema'), $name);
+        return this.adapt(new(require('./adapter/mysql'))(knex, 'mysql', $config, $config['migrations']), require('./schema/mysqlSchema'), $name);
+    }
+    createMysql2Driver($config, $name) {
+        return this.adapt(new(require('./adapter/mysql'))(knex, 'mysql2', $config, $config['migrations']), require('./schema/mysqlSchema'), $name);
     }
 
     createOracleDriver($config, $name) {
