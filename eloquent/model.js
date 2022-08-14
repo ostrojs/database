@@ -30,7 +30,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     set $query($value) {
         return this[kQuery] = $value
     }
-
     $connection = '';
 
     $primaryKey = 'id';
@@ -74,7 +73,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     setConnection($name) {
-        
+
         this.$connection = $name;
 
         return this;
@@ -108,7 +107,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
                 if (typeof fn == 'function') {
                     this['set' + fillable.ucfirst() + 'Attribute'](obj[fillable])
                 } else {
-                    this.$attributes[fillable] = obj[fillable]
+                    this.setAttribute(fillable, obj[fillable])
                 }
             }
 
@@ -205,9 +204,9 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         if (typeof data != 'object' || Array.isArray(data))
             throw Error('Only json object allowed')
         this.fillable(data)
-        this.addTimestampsToInsertValues(this.$attributes)
-        return this.$query.insert(this.$attributes).then(res => {
-            this.updateInserdtId([this.$attributes], res)
+        this.addTimestampsToInsertValues(this.getAttributes())
+        return this.$query.insert(this.getAttributes()).then(res => {
+            this.updateInserdtId([this.getAttributes()], res)
             return this
         })
     }
@@ -345,8 +344,8 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     hydrate($items) {
-        let $instance = this.newInstance();
 
+        let $instance = this.newInstance();
         return $instance.newCollection($items.map(function($item) {
             return $instance.newFromBuilder($item);
         }));
@@ -364,7 +363,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
     newFromBuilder($attributes = [], $connection = null) {
         let $model = this.newInstance({}, true);
-        $model.setRawAttributes(Object.assign($attributes, this.$attributes), true);
+        $model.setRawAttributes($attributes, true);
         $model.setConnection($connection || this.getConnectionName());
 
         return $model;
@@ -572,8 +571,15 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         return true;
     }
 
-    async delete() {
+    destroy(id) {
+        let where = {
+            [this.$primaryKey]: id
+        }
+        this.where(where)
+        return this.delete();
+    }
 
+    async delete() {
         if (is_null(this.getKeyName())) {
             throw new Error('No primary key defined on model.');
         } else if (!this.$exists) {
@@ -589,7 +595,18 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     async performDeleteOnModel() {
-        await this.$query.delete()
+        if (Object.keys(this.getAttributes()).length) {
+            if (this.$primaryKey in this.getAttributes()) {
+                let where = {
+                    [this.$primaryKey]: this.getAttribute(this.$primaryKey)
+                }
+                this.where(where)
+                return this.$query.delete();
+            }
+        } else {
+            await this.$query.delete()
+        }
+
 
         this.$exists = false;
     }
@@ -616,14 +633,10 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         })
     }
 
-    destroy(id) {
-        let where = {
-            [this.$primaryKey]: id
-        }
-        return this.where(where).delete()
-    }
-
     find($id) {
+        if (!this.$primaryKey) {
+            throw Error('No primary key defined on model');
+        }
         return this.where({
             [this.$primaryKey]: $id
         }).first()

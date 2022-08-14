@@ -1,322 +1,55 @@
-const CollectionInterface = require('@ostro/contracts/collection/collect')
-const ModelInterface = require('@ostro/contracts/database/eloquent/model')
-const { omit, pick } = require('lodash')
+class HidesAttributes {
 
-class HasAttributes {
+    $hidden = [];
 
-    static $mutatorCache = {};
+    $visible = [];
 
-    $attributes = {};
-
-    $original = {};
-
-    $changes = {};
-
-    $casts = {};
-
-    $classCastCache = [];
-
-    static $primitiveCastTypes = [
-        'array',
-        'bool',
-        'boolean',
-        'collection',
-        'custom_datetime',
-        'date',
-        'datetime',
-        'decimal',
-        'double',
-        'encrypted',
-        'encrypted:array',
-        'encrypted:collection',
-        'encrypted:json',
-        'encrypted:object',
-        'float',
-        'int',
-        'integer',
-        'json',
-        'object',
-        'real',
-        'string',
-        'timestamp',
-    ];
-
-    $dates = [];
-
-    $dateFormat;
-
-    $appends = {};
-
-    static $snakeAttributes = true;
-
-    static $encrypter;
-
-    attributesToJson() {
-        let $attributes = { ...this.getJsonableAttributes() }
-        let $mutatedAttributes = this.getMutatedAttributes()
-        $attributes = this.addMutatedAttributesToJSON(
-            $attributes, $mutatedAttributes
-        );
-        let jsonableRelations = this.getJsonableableRelations()
-        for (let $key in jsonableRelations) {
-            let $value = jsonableRelations[$key]
-            if ($value instanceof CollectionInterface) {
-                $attributes[$key] = $value.toArray()
-            } else if ($value instanceof ModelInterface) {
-                $attributes[$key] = $value.toJson()
-            }
-        }
-
-        return $attributes;
+    getHidden() {
+        return this.$hidden;
     }
 
-    getJsonableAttributes() {
-        return this.getJsonableItems(this.getAttributes());
+    setHidden($hidden) {
+        this.$hidden = $hidden;
+
+        return this;
     }
 
-    getJsonableAppends() {
-        if (!count(this.$appends)) {
-            return [];
-        }
-
-        return this.getJsonableItems(this.$appends);
+    getVisible() {
+        return this.$visible;
     }
 
-    getJsonableItems($values) {
-        if (count(this.getVisible()) > 0) {
-            $values = pick($values, this.getVisible());
-        }
-
-        if (count(this.getHidden()) > 0) {
-            $values = omit($values, this.getHidden())
-        }
-
-        return $values;
+    setVisible($visible) {
+        this.$visible = $visible;
+        return this;
     }
 
-    mutateAttributeForJSON($key, $value) {
-        $value = this.mutateAttribute($key, $value);
-        if ($value instanceof CollectionInterface) {
-            return $value.toArray()
-        } else if ($value instanceof ModelInterface) {
-            return $value.toJson()
-        }
-        return $value;
-    }
+    makeVisible($attributes) {
+        $attributes = Array.isArray($attributes) ? $attributes : arguments();
 
-    getRelationValue($key) {
-        if (this.relationLoaded($key)) {
-            return this.getRelations()[$key];
-        }
-    }
+        this.$hidden = this.$hidden.intersection(Object.keys($attributes));
 
-    relationsToJson() {
-        let $attributes = {};
-        let jsonableRelations = this.getJsonableableRelations()
-        for (let $key in jsonableRelations) {
-            let $value = jsonableRelations[$key]
-
-            if ($value instanceof CollectionInterface) {
-                var $relation = $value.toArray();
-            } else if (is_null($value)) {
-                $relation = $value;
-            }
-            if (this.constructor.$snakeAttributes) {
-                $key = String.snake($key);
-            }
-
-            if (isset($relation) || is_null($value)) {
-                $attributes[$key] = $relation;
-            }
-
-            unset($relation);
-        }
-
-        return $attributes;
-    }
-
-    getJsonableableRelations() {
-        return this.getJsonableItems(this.getRelations());
-    }
-
-
-    addMutatedAttributesToJSON($attributes, $mutatedAttributes) {
-        for (let $key of $mutatedAttributes) {
-
-            if (!$attributes.hasOwnProperty($key)) {
-                continue;
-            }
-
-            $attributes[$key] = this.mutateAttributeForJSON(
-                $key, $attributes[$key]
-            );
-        }
-
-        return $attributes;
-    }
-
-    setRawAttributes($attributes, $sync = false) {
-        this.$attributes = $attributes;
-
-        if ($sync) {
-            this.syncOriginal();
+        if (!empty(this.$visible)) {
+            this.$visible = this.$visible.intersection(Object.keys($attributes));
         }
 
         return this;
     }
 
-    syncOriginal() {
-
-        this.$original = { ...this.getAttributes() }
+    makeVisibleIf($condition, $attributes) {
+        return value($condition, this) ? this.makeVisible($attributes) : this;
     }
 
-    getAttributes() {
-
-        return this.$attributes;
-    }
-
-    getAttribute($key) {
-        if (!$key) {
-            return;
-        } else if (this.$attributes.hasOwnProperty($key) ||
-            this.hasGetMutator($key)) {
-            return this.getAttributeValue($key);
-        } else if (method_exists(this.constructor.class, $key)) {
-            return;
-        }
-
-        return this.getRelationValue($key);
-    }
-
-    setAttribute($key, value) {
-        if (this.hasSetMutator($key)) {
-            return this.setMutatedAttributeValue($key, value);
-        }
-        return this.$attributes[$key] = value
-
-    }
-
-    getAttributesForInsert() {
-        return this.getAttributes();
-    }
-
-    isDirty($attributes = null) {
-        return this.hasChanges(
-            this.getDirty(), Array.isArray($attributes) ? $attributes : arguments
+    makeHidden($attributes) {
+        this.$hidden = this.$hidden.concat(
+            Array.isArray($attributes) ? $attributes : arguments()
         );
-    }
-
-    hasChanges($changes, $attributes = null) {
-
-        if (empty($attributes)) {
-            return count($changes) > 0;
-        }
-
-        for (let $attribute in $attributes) {
-            if ($changes.hasOwnProperty($attribute)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    getDirty() {
-        let $dirty = {};
-        let $attributes = this.getAttributes()
-
-        for (let $key in $attributes) {
-            let $value = $attributes[$key]
-
-            if (!this.originalIsEquivalent($key)) {
-                $dirty[$key] = $value;
-            }
-        }
-
-        return $dirty;
-    }
-
-    getChanges() {
-        return this.$changes;
-    }
-
-    originalIsEquivalent($key) {
-        if (!this.$original.hasOwnProperty($key)) {
-            return false;
-        }
-
-        let $attribute = this.$attributes[$key];
-        let $original = this.$original[$key];
-
-        if ($attribute === $original) {
-            return true;
-        } else if (is_null($attribute)) {
-            return false;
-        }
-
-        return $attribute == $original;
-    }
-
-    hasGetMutator($key) {
-        return method_exists(this, 'get' + $key.studly() + 'Attribute');
-    }
-
-    mutateAttribute($key, $value) {
-        return this['get' + $key.studly() + 'Attribute']($value);
-    }
-
-    hasSetMutator($key) {
-        return method_exists(this, 'set' + $key.studly() + 'Attribute');
-    }
-
-    setMutatedAttributeValue($key, $value) {
-        return this['set' + $key.studly() + 'Attribute']($value);
-    }
-
-    transformModelValue($key, $value) {
-
-        if (this.hasGetMutator($key)) {
-            return this.mutateAttribute($key, $value);
-        }
-
-        return $value;
-    }
-
-    getAttributeFromArray($key) {
-        return this.getAttributes()[$key] || null;
-    }
-
-    getAttributeValue($key) {
-        return this.transformModelValue($key, this.getAttributeFromArray($key));
-    }
-
-    getMutatedAttributes() {
-        let $class = this.constructor;
-
-        if (!isset(this.constructor.$mutatorCache[$class.name])) {
-            this.constructor.cacheMutatedAttributes($class);
-        }
-        return this.constructor.$mutatorCache[$class.name];
-    }
-
-    syncChanges() {
-        this.$changes = this.getDirty();
 
         return this;
     }
 
-    static cacheMutatedAttributes($class) {
-        this.$mutatorCache[$class.name] = collect(this.getMutatorMethods($class)).map(($match) => {
-            return (this.$snakeAttributes ? $match.snake() : $match).lowerFirst();
-        }).all();
+    makeHiddenIf($condition, $attributes) {
+        return value($condition, this) ? this.makeHidden($attributes) : this;
     }
-
-    static getMutatorMethods($class) {
-        let $matches = [...(Object.getOwnPropertyNames($class.prototype).join(';')).matchAll(/(?<=^|;)get([^;]+?)Attribute(;|$)/g)];
-
-        return $matches.map(arr => arr[1]);
-    }
-
 }
 
-module.exports = HasAttributes
+module.exports = HidesAttributes
