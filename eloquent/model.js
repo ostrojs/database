@@ -533,7 +533,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     getKeyForSaveQuery() {
-        return this.$original[this.getKeyName()] || this.getKey();
+        return this.getOriginal(this.getKeyName()) || this.getKey();
     }
 
     getIncrementing() {

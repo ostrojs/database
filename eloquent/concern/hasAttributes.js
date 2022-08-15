@@ -53,7 +53,7 @@ class HasAttributes {
     static $encrypter;
 
     attributesToJson() {
-        let $attributes = { ...this.getJsonableAttributes(),...this.getJsonableAppends() }
+        let $attributes = { ...this.getJsonableAttributes(), ...this.getJsonableAppends() }
         let $mutatedAttributes = this.getMutatedAttributes()
         $attributes = this.addMutatedAttributesToJSON(
             $attributes, $mutatedAttributes
@@ -171,6 +171,10 @@ class HasAttributes {
         this[kOriginal] = { ...this.getAttributes() }
     }
 
+    getOriginal(key) {
+        return this[kOriginal][key];
+    }
+
     getAttributes() {
 
         return this[kAttributes];
@@ -179,8 +183,7 @@ class HasAttributes {
     getAttribute($key) {
         if (!$key) {
             return;
-        } else if (this[kAttributes].hasOwnProperty($key) ||
-            this.hasGetMutator($key)) {
+        } else if (this[kAttributes].hasOwnProperty($key) || this.hasGetMutator($key)) {
             return this.getAttributeValue($key);
         } else if (method_exists(this.constructor.class, $key)) {
             return;
