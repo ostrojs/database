@@ -1,15 +1,13 @@
 const CollectionInterface = require('@ostro/contracts/collection/collect')
 const ModelInterface = require('@ostro/contracts/database/eloquent/model')
 const { omit, pick } = require('lodash')
-const kAttributes = Symbol('attributes')
-const kOriginal = Symbol('original')
 class HasAttributes {
 
     static $mutatorCache = {};
 
-    [kAttributes] = {};
+    $attributes = {};
 
-    [kOriginal] = {};
+    $original = {};
 
     $changes = {};
 
@@ -157,7 +155,7 @@ class HasAttributes {
     }
 
     setRawAttributes($attributes, $sync = false) {
-        this[kAttributes] = $attributes;
+        this.$attributes = $attributes;
 
         if ($sync) {
             this.syncOriginal();
@@ -168,22 +166,22 @@ class HasAttributes {
 
     syncOriginal() {
 
-        this[kOriginal] = { ...this.getAttributes() }
+        this.$original = { ...this.getAttributes() }
     }
 
     getOriginal(key) {
-        return this[kOriginal][key];
+        return this.$original[key];
     }
 
     getAttributes() {
 
-        return this[kAttributes];
+        return this.$attributes;
     }
 
     getAttribute($key) {
         if (!$key) {
             return;
-        } else if (this[kAttributes].hasOwnProperty($key) || this.hasGetMutator($key)) {
+        } else if (this.$attributes.hasOwnProperty($key) || this.hasGetMutator($key)) {
             return this.getAttributeValue($key);
         } else if (method_exists(this.constructor.class, $key)) {
             return;
@@ -196,7 +194,7 @@ class HasAttributes {
         if (this.hasSetMutator($key)) {
             return this.setMutatedAttributeValue($key, value);
         }
-        return this[kAttributes][$key] = value
+        return this.$attributes[$key] = value
 
     }
 
@@ -245,12 +243,12 @@ class HasAttributes {
     }
 
     originalIsEquivalent($key) {
-        if (!this[kOriginal].hasOwnProperty($key)) {
+        if (!this.$original.hasOwnProperty($key)) {
             return false;
         }
 
-        let $attribute = this[kAttributes][$key];
-        let $original = this[kOriginal][$key];
+        let $attribute = this.$attributes[$key];
+        let $original = this.$original[$key];
 
         if ($attribute === $original) {
             return true;
