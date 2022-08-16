@@ -445,6 +445,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     async eagerLoadRelation($models, $name, $constraints) {
 
         let $relation = this.getRelation($name);
+
         $relation.addEagerConstraints($models);
 
         $constraints($relation);
@@ -460,7 +461,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     async eagerLoadRelations($models) {
         for (let $name in this[kEagerLoad]) {
             let $constraints = this[kEagerLoad][$name]
-
             if ($name.includes('.') === false) {
                 $models = await this.eagerLoadRelation($models, $name, $constraints);
             }
