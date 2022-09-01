@@ -4,14 +4,58 @@ const knex = require('knex')
 const kAdapter = Symbol('adapter')
 const kSchema = Symbol('schema')
 const kConnectionName = Symbol('connectionName')
+const { debounce } = require('@ostro/support/function')
 class DatabaseAdapter extends Macroable {
-    constructor($adapter, $schema, $name) {
+    constructor($adapter, $schema, $name, $config = {}) {
         super()
         this[kAdapter] = $adapter;
         this[kConnectionName] = $name;
         $schema.connection($adapter['schema']);
-
         this[kSchema] = $schema;
+        this.active = true;
+        let closeTime = $config['connectionCloseTime'] || 1000
+        let destroy = $config['destroy'] || true
+        let disconnectConnection = debounce(() => {
+            if (destroy == true) {
+                this.destroy();
+                this.active = false;
+            }
+
+        }, closeTime);
+
+
+
+        let i = 0;
+
+        let acquireConnection = this[kAdapter].client.acquireConnection.bind(this[kAdapter].client);
+
+        this[kAdapter].client.acquireConnection = () => {
+            i++;
+            disconnectConnection.clear();
+            if (this.active == false) {
+                this[kAdapter].initialize();
+                this.active = true;
+            }
+            return acquireConnection()
+        }
+
+        let closeConnection = function() {
+            i--;
+            if (i == 0) {
+                disconnectConnection();
+            }
+        }
+
+        this[kAdapter].client.on('query-error', function() {
+            closeConnection();
+        })
+
+        this[kAdapter].client.on('query-response', function() {
+            closeConnection();
+        })
+
+
+
     }
 
     table(name) {
@@ -21,6 +65,7 @@ class DatabaseAdapter extends Macroable {
     query(query) {
         return this[kAdapter].raw(query)
     }
+
     raw() {
         return this[kAdapter].raw(...arguments)
     }
@@ -32,6 +77,7 @@ class DatabaseAdapter extends Macroable {
     getQueryBuilder() {
         return this[kAdapter]
     }
+
     schema() {
         return this[kSchema]
     }
@@ -42,6 +88,10 @@ class DatabaseAdapter extends Macroable {
 
     getName() {
         return this[kConnectionName]
+    }
+
+    destroy() {
+        this[kAdapter].destroy()
     }
 }
 
