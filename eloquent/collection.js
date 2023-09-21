@@ -9,9 +9,25 @@ class Collection extends BaseCollection {
             return $value instanceof ModelInterface ? $value.toJson() : $value
         }).all()
     }
-    serialize(){
-        return this.toArray()
+    serialize() {
+        let $value = this.all();
+        if(Array.isArray($value)){
+            return this.toArray()
 
+        }else{
+            return this.toJSON()
+        }
+
+    }
+    toJSON() {
+        let $value = this.all();
+        if(Array.isArray($value)){
+            throw Error(`Use toArray insted of toJson / toJSON  method.`)
+        }
+        return $value instanceof ModelInterface ? $value.toJson() : $value
+    }
+    toJson(){
+        return this.toJSON()
     }
 
 }

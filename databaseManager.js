@@ -25,7 +25,7 @@ class DatabaseManager extends Manager {
     }
 
     createSqliteDriver($config, $name) {
-        return this.adapt(new(require('./adapter/sqlite'))(knex, $config['database'], $config['migrations']), require('./schema/sqliteSchema'), $name);
+        return this.adapt(new(require('./adapter/sqlite'))(knex, 'sqlite3',$config['database'], $config['migrations']), require('./schema/sqliteSchema'), $name);
     }
 
     createMysqlDriver($config, $name) {

@@ -20,16 +20,15 @@ class BelongsTo extends implement(Relation, SupportsDefaultModels) {
         this.$foreignKey = $foreignKey;
 
         this.$child = $child;
-        this.addConstraints()
 
     }
 
     getResults() {
         if (is_null(this.$child[this.$foreignKey])) {
-            return this.getDefaultFor(this.parent);
+            return this.getDefaultFor(this.$parent);
         }
 
-        return this.$query.first() || this.getDefaultFor(this.parent);
+        return this.$query.first() || this.getDefaultFor(this.$parent);
     }
 
     addConstraints() {
@@ -52,7 +51,7 @@ class BelongsTo extends implement(Relation, SupportsDefaultModels) {
         let $keys = [];
 
         for (let $model of $models) {
-            let $value = $model[this.$foreignKey]
+            let $value = $model.getAttribute(this.$foreignKey)
             if (!is_null($value)) {
                 $keys.push($value);
             }
@@ -76,23 +75,26 @@ class BelongsTo extends implement(Relation, SupportsDefaultModels) {
 
         let $owner = this.$ownerKey;
 
-        let $dictionary = [];
+        let $dictionary = {};
 
         for (let $result of $results) {
             let $attribute = this.getDictionaryKey($result.getAttribute($owner));
             $dictionary[$attribute] = $result;
         }
 
-        for (let $model of $models) {
-            let $attribute = this.getDictionaryKey($model[$foreign]);
 
+
+        for (let $model of $models) {
+            let $attribute = this.getDictionaryKey($model.getAttribute($foreign));
+            
             if (isset($dictionary[$attribute])) {
                 $model.setRelation($relation, $dictionary[$attribute]);
             }
         }
-
+        
         return $models;
     }
+
 
     associate($model) {
         let $ownerKey = $model instanceof Model ? $model.getAttribute(this.$ownerKey) : $model;

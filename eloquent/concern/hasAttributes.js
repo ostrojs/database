@@ -1,7 +1,6 @@
 const CollectionInterface = require('@ostro/contracts/collection/collect')
 const ModelInterface = require('@ostro/contracts/database/eloquent/model')
 const { omit, pick } = require('lodash')
-
 class HasAttributes {
 
     static $mutatorCache = {};
@@ -52,7 +51,7 @@ class HasAttributes {
     static $encrypter;
 
     attributesToJson() {
-        let $attributes = { ...this.getJsonableAttributes() }
+        let $attributes = { ...this.getJsonableAttributes(), ...this.getJsonableAppends() }
         let $mutatedAttributes = this.getMutatedAttributes()
         $attributes = this.addMutatedAttributesToJSON(
             $attributes, $mutatedAttributes
@@ -170,6 +169,10 @@ class HasAttributes {
         this.$original = { ...this.getAttributes() }
     }
 
+    getOriginal(key) {
+        return this.$original[key];
+    }
+
     getAttributes() {
 
         return this.$attributes;
@@ -178,8 +181,7 @@ class HasAttributes {
     getAttribute($key) {
         if (!$key) {
             return;
-        } else if (this.$attributes.hasOwnProperty($key) ||
-            this.hasGetMutator($key)) {
+        } else if (this.$attributes.hasOwnProperty($key) || this.hasGetMutator($key)) {
             return this.getAttributeValue($key);
         } else if (method_exists(this.constructor.class, $key)) {
             return;

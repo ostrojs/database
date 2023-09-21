@@ -1,9 +1,9 @@
 class Mysql {
-    constructor(client, package = 'mysql', connection, migrationTable = 'migrations') {
+    constructor(client, clientPackage = 'mysql', connection, migrationTable = 'migrations') {
 
         connection.port = Number(connection.port)
         return client({
-            client: package,
+            client: clientPackage,
             connection: {
                 host: connection.host,
                 port: connection.port,
