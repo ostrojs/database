@@ -390,7 +390,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     relationsNestedUnder($relation) {
-        let $nested = [];
+        let $nested = {};
 
         for (let $name in this[kEagerLoad]) {
             let $constraints = this[kEagerLoad][$name]
