@@ -1,362 +1,376 @@
-const Collection = require('@ostro/support/collection')
+const Collection = require('@ostro/support/collection');
+const { trim, last } = require('@ostro/support/function');
 
 class Builder {
     from() {
-         this.$query.from(...arguments)
+        this.getQuery().from(...arguments)
         return this;
     }
     where() {
-         this.$query.where(...arguments)
+        this.getQuery().where(...arguments)
         return this;
     }
 
     whereNot() {
-         this.$query.whereNot(...arguments)
+        this.getQuery().whereNot(...arguments)
         return this;
     }
     whereIn() {
-         this.$query.whereIn(...arguments)
+        this.getQuery().whereIn(...arguments)
         return this;
     }
     whereNotIn() {
-         this.$query.whereNotIn(...arguments)
+        this.getQuery().whereNotIn(...arguments)
         return this;
     }
     whereNull() {
-         this.$query.whereNull(...arguments)
+        this.getQuery().whereNull(...arguments)
         return this;
     }
     whereNotNull() {
-         this.$query.whereNotNull(...arguments)
+        this.getQuery().whereNotNull(...arguments)
         return this;
     }
     whereExists() {
-         this.$query.whereExists(...arguments)
+        this.getQuery().whereExists(...arguments)
         return this;
     }
     whereNotExists() {
-         this.$query.whereNotExists(...arguments)
+        this.getQuery().whereNotExists(...arguments)
         return this;
     }
     whereBetween() {
-         this.$query.whereBetween(...arguments)
+        this.getQuery().whereBetween(...arguments)
         return this;
     }
     whereNotBetween() {
-         this.$query.whereNotBetween(...arguments)
+        this.getQuery().whereNotBetween(...arguments)
         return this;
     }
     whereRaw() {
-         this.$query.whereRaw(...arguments)
+        this.getQuery().whereRaw(...arguments)
         return this;
     }
 
     orWhere() {
-         this.$query.orWhere(...arguments)
+        this.getQuery().orWhere(...arguments)
         return this;
     }
 
     orWhereNot() {
-         this.$query.orWhereNot(...arguments)
+        this.getQuery().orWhereNot(...arguments)
         return this;
     }
 
     orWhereIn() {
-         this.$query.orWhereIn(...arguments)
+        this.getQuery().orWhereIn(...arguments)
         return this;
     }
 
     orWhereNotIn() {
-         this.$query.orWhereNotIn(...arguments)
+        this.getQuery().orWhereNotIn(...arguments)
         return this;
     }
 
     orWhereNull() {
-         this.$query.orWhereNull(...arguments)
+        this.getQuery().orWhereNull(...arguments)
         return this;
     }
     orWhereExists() {
-         this.$query.orWhereExists(...arguments)
+        this.getQuery().orWhereExists(...arguments)
         return this;
     }
     orWhereNotExists() {
-         this.$query.orWhereNotExists(...arguments)
+        this.getQuery().orWhereNotExists(...arguments)
         return this;
     }
     orWhereBetween() {
-         this.$query.orWhereBetween(...arguments)
+        this.getQuery().orWhereBetween(...arguments)
         return this;
     }
     orWhereNotBetween() {
-         this.$query.orWhereNotBetween(...arguments)
+        this.getQuery().orWhereNotBetween(...arguments)
         return this;
     }
     innerJoin() {
-         this.$query.innerJoin(...arguments)
+        this.getQuery().innerJoin(...arguments)
         return this;
     }
     leftJoin() {
-         this.$query.leftJoin(...arguments)
+        this.getQuery().leftJoin(...arguments)
         return this;
     }
     leftOuterJoin() {
-         this.$query.leftOuterJoin(...arguments)
+        this.getQuery().leftOuterJoin(...arguments)
         return this;
     }
     rightJoin() {
-         this.$query.rightJoin(...arguments)
+        this.getQuery().rightJoin(...arguments)
         return this;
     }
     rightOuterJoin() {
-         this.$query.rightOuterJoin(...arguments)
+        this.getQuery().rightOuterJoin(...arguments)
         return this;
     }
     fullOuterJoin() {
-         this.$query.fullOuterJoin(...arguments)
+        this.getQuery().fullOuterJoin(...arguments)
         return this;
     }
     crossJoin() {
-         this.$query.crossJoin(...arguments)
+        this.getQuery().crossJoin(...arguments)
         return this;
     }
     join() {
-         this.$query.join(...arguments)
+        this.getQuery().join(...arguments)
         return this;
     }
 
     joinRaw() {
-         this.$query.joinRaw(...arguments)
+        this.getQuery().joinRaw(...arguments)
         return this;
     }
     onIn() {
-         this.$query.onIn(...arguments)
+        this.getQuery().onIn(...arguments)
         return this;
     }
     onNotIn() {
-         this.$query.onNotIn(...arguments)
+        this.getQuery().onNotIn(...arguments)
         return this;
     }
     onNull() {
-         this.$query.onNull(...arguments)
+        this.getQuery().onNull(...arguments)
         return this;
     }
     onNotNull() {
-         this.$query.onNotNull(...arguments)
+        this.getQuery().onNotNull(...arguments)
         return this;
     }
     onExists() {
-         this.$query.onExists(...arguments)
+        this.getQuery().onExists(...arguments)
         return this;
     }
     onNotExists() {
-         this.$query.onNotExists(...arguments)
+        this.getQuery().onNotExists(...arguments)
         return this;
     }
     onBetween() {
-         this.$query.onBetween(...arguments)
+        this.getQuery().onBetween(...arguments)
         return this;
     }
     onNotBetween() {
-         this.$query.onNotBetween(...arguments)
+        this.getQuery().onNotBetween(...arguments)
         return this;
     }
     having() {
-         this.$query.having(...arguments)
+        this.getQuery().having(...arguments)
         return this;
     }
     havingIn() {
-         this.$query.havingIn(...arguments)
+        this.getQuery().havingIn(...arguments)
         return this;
     }
     havingNotIn() {
-         this.$query.havingNotIn(...arguments)
+        this.getQuery().havingNotIn(...arguments)
         return this;
     }
     havingNull() {
-         this.$query.havingNull(...arguments)
+        this.getQuery().havingNull(...arguments)
         return this;
     }
     havingNotNull() {
-         this.$query.havingNotNull(...arguments)
+        this.getQuery().havingNotNull(...arguments)
         return this;
     }
     havingExists() {
-         this.$query.havingExists(...arguments)
+        this.getQuery().havingExists(...arguments)
         return this;
     }
     havingNotExists() {
-         this.$query.havingNotExists(...arguments)
+        this.getQuery().havingNotExists(...arguments)
         return this;
     }
     havingBetween() {
-         this.$query.havingBetween(...arguments)
+        this.getQuery().havingBetween(...arguments)
         return this;
     }
     havingNotBetween() {
-         this.$query.havingNotBetween(...arguments)
+        this.getQuery().havingNotBetween(...arguments)
         return this;
     }
     havingRaw() {
-         this.$query.havingRaw(...arguments)
+        this.getQuery().havingRaw(...arguments)
         return this;
     }
     clearSelect() {
-         this.$query.clearSelect(...arguments)
+        this.getQuery().clearSelect(...arguments)
         return this;
     }
     clearWhere() {
-         this.$query.clearWhere(...arguments)
+        this.getQuery().clearWhere(...arguments)
         return this;
     }
     clearOrder() {
-         this.$query.clearOrder(...arguments)
+        this.getQuery().clearOrder(...arguments)
         return this;
     }
     clearHaving() {
-         this.$query.clearHaving(...arguments)
+        this.getQuery().clearHaving(...arguments)
         return this;
     }
     clearCounters() {
-         this.$query.clearCounters(...arguments)
+        this.getQuery().clearCounters(...arguments)
         return this;
     }
     distinct() {
-         this.$query.distinct(...arguments)
+        this.getQuery().distinct(...arguments)
         return this;
     }
     groupBy() {
-         this.$query.groupBy(...arguments)
+        this.getQuery().groupBy(...arguments)
         return this;
     }
     groupByRaw() {
-         this.$query.groupByRaw(...arguments)
+        this.getQuery().groupByRaw(...arguments)
         return this;
     }
     orderBy() {
-         this.$query.orderBy(...arguments)
+        this.getQuery().orderBy(...arguments)
         return this;
     }
     orderByRaw() {
-         this.$query.orderByRaw(...arguments)
+        this.getQuery().orderByRaw(...arguments)
         return this;
     }
     offset() {
-         this.$query.offset(...arguments)
+        this.getQuery().offset(...arguments)
         return this;
     }
     limit() {
-         this.$query.limit(...arguments)
+        this.getQuery().limit(...arguments)
         return this;
     }
     union() {
-         this.$query.union(...arguments)
+        this.getQuery().union(...arguments)
         return this;
     }
     unionAll() {
-         this.$query.unionAll(...arguments)
+        this.getQuery().unionAll(...arguments)
         return this;
     }
     insert() {
-        return this.$query.insert(...arguments)
+        return this.getQuery().insert(...arguments)
     }
     batchInsert() {
-         this.$query.batchInsert(...arguments)
+        this.getQuery().batchInsert(...arguments)
         return this;
     }
     returning() {
-         this.$query.havingBetween(...arguments)
+        this.getQuery().havingBetween(...arguments)
         return this;
     }
     update() {
-        return this.$query.update(...arguments)
+        return this.getQuery().update(...arguments)
     }
     delete() {
-        return this.$query.delete(...arguments)
+        return this.getQuery().delete(...arguments)
     }
     transacting() {
-         this.$query.transacting(...arguments)
+        this.getQuery().transacting(...arguments)
         return this;
     }
     forUpdate() {
-         this.$query.forUpdate(...arguments)
+        this.getQuery().forUpdate(...arguments)
         return this;
     }
     forShare() {
-         this.$query.forShare(...arguments)
+        this.getQuery().forShare(...arguments)
         return this;
     }
     skipLocked() {
-         this.$query.skipLocked(...arguments)
+        this.getQuery().skipLocked(...arguments)
         return this;
     }
     noWait() {
-        return this.$query.noWait(...arguments)
+        return this.getQuery().noWait(...arguments)
     }
-    count() {
-        return this.$query.count(...arguments)
+    async count(name) {
+        name = name || '*';
+        const data = await this.getQuery().count(name);
+        if (name.includes('as')) {
+            name = name.split('as ');
+            name = trim(last(name), ' ')
+        } else {
+            name = name == '*' ? 'count(*)' : `count(\`${name}\`)`
+        }
+        return data[0][name];
+
     }
     min() {
-        return this.$query.min(...arguments)
+        return this.getQuery().min(...arguments)
     }
     max(max) {
-        return this.$query.max(max).first()
+        return this.getQuery().max(max).first()
     }
     sum() {
-        return this.$query.sum(...arguments)
+        return this.getQuery().sum(...arguments)
     }
     avg() {
-        return this.$query.avg(...arguments)
+        return this.getQuery().avg(...arguments)
     }
     increment() {
-        return this.$query.increment(...arguments)
+        return this.getQuery().increment(...arguments)
     }
     decrement() {
-        return this.$query.decrement(...arguments)
+        return this.getQuery().decrement(...arguments)
     }
     truncate() {
-        return this.$query.truncate(...arguments)
+        return this.getQuery().truncate(...arguments)
     }
     async pluck(key, value) {
         if (typeof value == 'string') {
             let datas = await this.select(key, value).collection()
             return datas.pluck(key, value)
         }
-        return this.$query.pluck(key)
+        return this.getQuery().pluck(key)
     }
 
     clone() {
-        return this.$query.clone(...arguments)
+        return this.getQuery().clone(...arguments)
     }
     modify() {
-        return this.$query.modify(...arguments)
+        return this.getQuery().modify(...arguments)
     }
     columnInfo() {
-        return this.$query.columnInfo(...arguments)
+        return this.getQuery().columnInfo(...arguments)
     }
     queryContext() {
-         this.$query.queryContext(...arguments)
+        this.getQuery().queryContext(...arguments)
         return this
     }
     query() {
-         this.$query.query(...arguments)
+        this.getQuery().query(...arguments)
         return this
     }
 
     select() {
-         this.$query.select(...arguments)
+        this.getQuery().select(...arguments)
         return this
     }
     as() {
-         this.$query.as(...arguments)
+        this.getQuery().as(...arguments)
         return this
     }
     column() {
-         this.$query.column(...arguments)
+        this.getQuery().column(...arguments)
         return this
     }
     select() {
-         this.$query.select(...arguments)
+        this.getQuery().select(...arguments)
         return this
+    }
+
+    getQuery() {
+        return this.$query
     }
 
     skip() {
@@ -368,7 +382,7 @@ class Builder {
     }
 
     toSQL() {
-        return this.$query.toSQL()
+        return this.getQuery().toSQL()
     }
     toSql() {
         return this.toSQL()
@@ -390,7 +404,8 @@ class Builder {
             if (res)
                 return this.where(whereObj).update(updateObj)
             else
-                return this.insert({ ...whereObj,
+                return this.insert({
+                    ...whereObj,
                     ...updateObj
                 })
         })
@@ -404,14 +419,17 @@ class Builder {
         if (select[0] instanceof Array) {
             select = select[0]
         }
-        return this.$query.first(select)
+        return this.getQuery().first(select)
     }
     get() {
-        return this.$query
+        return this.getQuery()
+    }
+    async exists() {
+        return Boolean(await this.count());
     }
 
     collection() {
-        return this.$query.then(res => new Collection(res))
+        return this.getQuery().then(res => new Collection(res))
     }
 }
 module.exports = Builder
