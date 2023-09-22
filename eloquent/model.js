@@ -18,7 +18,6 @@ const kModel = Symbol('model')
 const kWasRecentlyCreated = Symbol('wasRecentlyCreated')
 const Collection = require('./collection')
 const ModelInterface = require('@ostro/contracts/database/eloquent/model')
-const CollectionInterface = require('@ostro/contracts/collection/collect')
 
 class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRelationships, HasRelationships, HasAttributes, HidesAttributes, HasTimestamps) {
 
@@ -42,7 +41,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
     $incrementing = true;
 
-    static[kResolver] = null;
+    static [kResolver] = null;
 
     $exists = true;
 
@@ -225,8 +224,8 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     createSelectWithConstraint($name) {
-        return [$name.split(':')[0], function($query) {
-            $query.select($name.split(':')[1].split(',').map(function($column) {
+        return [$name.split(':')[0], function ($query) {
+            $query.select($name.split(':')[1].split(',').map(function ($column) {
                 if (String.contains($column, '.')) {
                     return $column;
                 }
@@ -248,7 +247,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
                 $name = $constraints;
 
                 [$name, $constraints] = String.contains($name, ':') ?
-                    this.createSelectWithConstraint($name) : [$name, function() {}];
+                    this.createSelectWithConstraint($name) : [$name, function () { }];
             }
 
             $results = this.addNestedWiths($name, $results);
@@ -265,7 +264,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
             $progress.push($segment);
             let $last = $progress.join('.')
             if (!isset($results[$last])) {
-                $results[$last] = function() {
+                $results[$last] = function () {
                     //
                 };
             }
@@ -313,7 +312,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
     newInstance(attributes, $exists = false) {
 
-        let $model = new(this.constructor)(attributes)
+        let $model = new (this.constructor)(attributes)
         $model.$exists = $exists;
 
         $model.setConnection(
@@ -346,7 +345,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     hydrate($items) {
 
         let $instance = this.newInstance();
-        return $instance.newCollection($items.map(function($item) {
+        return $instance.newCollection($items.map(function ($item) {
             return $instance.newFromBuilder($item);
         }));
     }
