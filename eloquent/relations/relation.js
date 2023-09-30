@@ -15,6 +15,8 @@ class Relation extends Macroable.implement(InteractsWithDictionary) {
 
     static $morphMap = [];
 
+    $performQueries = [];
+
     constructor($query, $parent) {
         super()
         this.$query = $query;
@@ -109,7 +111,7 @@ class Relation extends Macroable.implement(InteractsWithDictionary) {
     }
 
     getKeys($models, $key = null) {
-        return $models.map(function($value) {
+        return $models.map(function ($value) {
             return $key ? $value.getAttribute($key) : $value.getKey();
         }).values().unique(null, true).sortBy().all();
     }
@@ -151,9 +153,22 @@ class Relation extends Macroable.implement(InteractsWithDictionary) {
     }
 
     whereInMethod($model, $key) {
-        return 'whereIn';
+        if ($model.getKeyName() === $key.split('.').pop() &&
+            ['int', 'integer'].includes($model.getKeyType())) {
+            return 'whereIntegerInRaw';
+        } else {
+            return 'whereIn';
+        }
     }
-
+    setPerformQuery(fn) {
+        if (Array.isArray(fn)) {
+            return this.$performQueries = this.$performQueries.concat(fn)
+        }
+        return this.$performQueries.push(fn)
+    }
+    getPerformQueries(){
+        return this.$performQueries
+    }
     static morphMap($map = null, $merge = true) {
         $map = this.buildMorphMapFromModels($map);
 
@@ -170,7 +185,7 @@ class Relation extends Macroable.implement(InteractsWithDictionary) {
             return $models;
         }
 
-        return $models.concat($models.map(function($model) {
+        return $models.concat($models.map(function ($model) {
             return (new $model).getTable();
         }));
     }
@@ -181,7 +196,11 @@ class Relation extends Macroable.implement(InteractsWithDictionary) {
 
     __call($target, $method, $parameters) {
 
-        let $result = this.$query[$method](...$parameters);
+        let $fn = this.$query[$method];
+        if(typeof $fn != 'function'){
+            throw Error(`Property [${$method}] not available on [${this.constructor.name}] class`)
+        }
+        const $result = this.$query[$method](...$parameters);
 
         if ($result === this.$query) {
             return this;
