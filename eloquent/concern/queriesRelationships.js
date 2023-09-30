@@ -33,7 +33,7 @@ class QueriesRelationships {
     }
 
     hasNested($relations, $operator = '>=', $count = 1, $boolean = 'and') {
-        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+        let $callback = Array.from(arguments).find(arg => typeof arg == 'function')
 
         $relations = $relations.split('.');
 
@@ -44,7 +44,7 @@ class QueriesRelationships {
             $count = 1;
         }
 
-        let $closure = function($q) {
+        let $closure = function ($q) {
 
             count($relations) > 1 ?
                 $q.whereHas($relations.shift(), $closure) :
@@ -55,29 +55,29 @@ class QueriesRelationships {
     }
 
     orHas($relation, $operator = '>=', $count = 1) {
-        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+        let $callback = Array.from(arguments).find(arg => typeof arg == 'function')
 
         return this.has($relation, $operator, $count, 'or', $callback);
     }
 
     doesntHave($relation, $boolean = 'and') {
-        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+        let $callback = Array.from(arguments).find(arg => typeof arg == 'function')
 
         return this.has($relation, '<', 1, $boolean, $callback);
     }
 
     orDoesntHave($relation, $callback) {
-        return this.doesntHave($relation, 'or',$callback);
+        return this.doesntHave($relation, 'or', $callback);
     }
 
     whereHas($relation, $operator = '>=', $count = 1) {
-        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+        let $callback = Array.from(arguments).find(arg => typeof arg == 'function')
 
         return this.has($relation, $operator, $count, 'and', $callback);
     }
 
     orWhereHas($relation, $operator = '>=', $count = 1) {
-        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+        let $callback = Array.from(arguments).find(arg => typeof arg == 'function')
 
         return this.has($relation, $operator, $count, 'or', $callback);
     }
@@ -105,7 +105,7 @@ class QueriesRelationships {
     }
 
     withAggregate($relations, $column) {
-        let $callback = Array.from(arguments).find(arg=>typeof arg == 'function')
+        let $callback = Array.from(arguments).find(arg => typeof arg == 'function')
 
         if (empty($relations)) {
             return this;
@@ -179,7 +179,7 @@ class QueriesRelationships {
         return this;
     }
 
-    withCount($relations,$callback) {
+    withCount($relations, $callback) {
         return this.withAggregate(Array.isArray($relations) ? $relations : arguments, '*', 'count', $callback);
     }
 
