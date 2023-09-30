@@ -1,14 +1,12 @@
+const { get_class_name } = require('@ostro/support/function')
 class GuardsAttributes {
     $fillable = [];
 
-    get $guarded() {
-        return ['*']
-    }
+    $guarded = ['*'];
 
     static $unguarded = false;
 
     static $guardableColumns = [];
-
     getFillable() {
         return this.$fillable;
     }
@@ -90,20 +88,19 @@ class GuardsAttributes {
         if (empty(this.getGuarded())) {
             return false;
         }
+        const reg = new RegExp('/^' + $key.escape() + '$/', 'i')
 
-        return this.getGuarded() == ['*'] ||
-            !empty(preg_grep('/^'.preg_quote($key) + '$/i', this.getGuarded())) ||
-            !this.isGuardableColumn($key);
+        return this.getGuarded().toString() == ['*'].toString() ||
+            !empty(this.getGuarded().filter(item => reg.test(item)))
     }
 
-    isGuardableColumn($key) {
+    async isGuardableColumn($key) {
         if (!isset(this.constructor.$guardableColumns[this.name])) {
-            this.constructor.$guardableColumns[get_class(this)] = this.getConnection()
-                .getSchemaBuilder()
+            this.constructor.$guardableColumns[get_class_name(this)] = await this.getConnection()
                 .getColumnListing(this.getTable());
         }
 
-        return this.constructor.$guardableColumns[get_class(this)].indexOf($key) > -1;
+        return this.constructor.$guardableColumns[get_class_name(this)].indexOf($key) > -1;
     }
 
     totallyGuarded() {
