@@ -16,6 +16,8 @@ const kQuery = Symbol('query')
 const kEagerLoad = Symbol('eagerLoad')
 const kModel = Symbol('model')
 const kWasRecentlyCreated = Symbol('wasRecentlyCreated')
+const kPerformRelationQuery = Symbol('performRelationQuery')
+const kLazyQueries = Symbol('lazyQueries')
 const Collection = require('./collection')
 const ModelInterface = require('@ostro/contracts/database/eloquent/model')
 
@@ -43,19 +45,26 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
     static [kResolver] = null;
 
-    $exists = true;
+    $exists = false;
 
     [kEagerLoad] = {};
+
+    [kLazyQueries] = [];
 
     [kWasRecentlyCreated] = false;
 
     [kModel] = null;
 
-    constructor($attributes = {}) {
+    constructor($attributes = {}, newInstance = true) {
         super()
-
         Object.defineProperty(this, kQuery, { value: null, writable: true })
-        this.fill($attributes);
+        const $attributesKeys = Object.keys($attributes)
+        let instance = this;
+        if (Array.isArray($attributesKeys) && $attributesKeys.length && newInstance == true) {
+            instance = this.newInstance($attributes, this.$exists);
+        }
+        instance.fill($attributes);
+        return instance
     }
 
     raw() {
@@ -117,7 +126,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     fill($attributes = {}) {
         let $totallyGuarded = this.totallyGuarded();
         let $fillableAttributes = this.fillableFromArray($attributes)
-        for (let $key in $attributes) {
+        for (let $key of $fillableAttributes) {
             let $value = $attributes[$key]
             if (this.isFillable($key)) {
                 this.setAttribute($key, $value);
@@ -145,8 +154,23 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     updateInserdtId($datas, $ids) {
+        const keys = this.getKeyName();
         for (var i = 0; i < $datas.length; i++) {
-            $datas[i][this.$primaryKey] = $ids[i]
+            let value = $ids[i];
+            if (Array.isArray(keys)) {
+                for (let key of keys) {
+                    if (typeof value == 'object') {
+                        value = value[key]
+                    }
+                    $datas[i][key] = value
+                }
+            } else {
+                if (typeof value == 'object') {
+                    value = value[keys]
+                }
+                $datas[i][keys] = value
+            }
+
         }
     }
 
@@ -215,9 +239,13 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         throw Error('Under development')
     }
 
-    insert($values) {
+    insert($values, $ids) {
         this.addTimestampsToInsertValues($values)
-        return this.$query.insert($values).then($ids => {
+        let query = this.$query.insert($values)
+        if ($ids) {
+            query.returning($ids)
+        }
+        return query.then($ids => {
             this.updateInserdtId($values, $ids)
             return $values
         })
@@ -310,9 +338,9 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         })
     }
 
-    newInstance(attributes, $exists = false) {
+    newInstance(attributes, $exists = false, newInstance = false) {
 
-        let $model = new (this.constructor)(attributes)
+        let $model = new (this.constructor)(attributes, newInstance)
         $model.$exists = $exists;
 
         $model.setConnection(
@@ -494,6 +522,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
         if ($saved) {
             this.finishSave($options);
+            await this[kPerformRelationQuery]()
         }
 
         return $saved;
@@ -526,13 +555,25 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     setKeysForSaveQuery($query) {
-        $query.where(this.getKeyName(), this.getKeyForSaveQuery());
+        const keys = this.getKeyName();
+        const obj = {
+
+        };
+        if (Array.isArray(keys)) {
+            for (let key of keys) {
+                obj[key] = this.getKeyForSaveQuery(key)
+            }
+        } else {
+            obj[keys] = this.getKeyForSaveQuery()
+        }
+        $query.where(obj);
 
         return $query;
     }
 
-    getKeyForSaveQuery() {
-        return this.getOriginal(this.getKeyName()) || this.getKey();
+
+    getKeyForSaveQuery(key) {
+        return this.getOriginal(key || this.getKeyName()) || this.getKey();
     }
 
     getIncrementing() {
@@ -540,13 +581,20 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     async insertAndSetId($query, $attributes) {
-        let $keyName = this.getKeyName()
-        $attributes = await $query.insert([$attributes]);
-        this.setRawAttributes($attributes[0]);
+        let $keyName = this.getKeyName();
+        const $id = await $query.insert([$attributes], $keyName);
+        if (Array.isArray($keyName)) {
+            for (let key of $keyName) {
+                return this.setAttribute(key, $id[0][key]);
+            }
+
+        } else {
+            return this.setAttribute($keyName, $id[0][$keyName]);
+        }
+
     }
 
     async performInsert($query) {
-
         if (this.usesTimestamps()) {
             this.updateTimestamps();
         }
@@ -560,7 +608,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
                 return true;
             }
 
-            $query.insert($attributes);
+            await $query.getQuery().insert($attributes);
         }
 
         this.$exists = true;
@@ -569,7 +617,15 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
         return true;
     }
-
+    [kPerformRelationQuery]() {
+        return Promise.all(this[kLazyQueries].map(fn => fn()))
+    }
+    setLazyQuery(fn) {
+        if (Array.isArray(fn)) {
+            return this[kLazyQueries] = this[kLazyQueries].concat(fn)
+        }
+        return this[kLazyQueries].push(fn)
+    }
     destroy(id) {
         let where = {
             [this.$primaryKey]: id
@@ -654,7 +710,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     __get(target, key) {
         return target.getAttribute(key)
     }
-
     static __call(target, method, args) {
 
         target = (new target())

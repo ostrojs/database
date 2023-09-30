@@ -18,13 +18,13 @@ class HasGlobalScopes {
 
     getGlobalScope($scope) {
         if (is_string($scope)) {
-            return Arr::get(this.constructor.$globalScopes, this.constructor.class.
-                '.'.$scope);
+            return Arr.get(this.constructor.$globalScopes, this.constructor.class +
+                '.' + $scope);
         }
 
-        return Arr::get(
-            this.constructor.$globalScopes, this.constructor.class.
-            '.'.get_class($scope)
+        return Arr.get(
+            this.constructor.$globalScopes, this.constructor.class +
+            '.' + get_class($scope)
         );
     }
 

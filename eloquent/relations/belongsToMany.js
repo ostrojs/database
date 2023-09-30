@@ -1,7 +1,8 @@
+const { implement } = require('@ostro/support/function');
 const Relation = require('./relation')
 const CollectionInterface = require('@ostro/contracts/collection/collect')
-
-class BelongsToMany extends Relation {
+const InteractsWithPivotTable = require('./concerns/interactsWithPivotTable')
+class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
 
     $table;
 
@@ -15,17 +16,17 @@ class BelongsToMany extends Relation {
 
     $relationName;
 
-    $pivotColumns;
+    $pivotColumns = [];
 
-    $pivotWheres;
+    $pivotWheres = [];
 
-    $pivotWhereIns;
+    $pivotWhereIns = [];
 
-    $pivotWhereNulls;
+    $pivotWhereNulls = [];
 
-    $pivotValues;
+    $pivotValues = [];
 
-    $withTimestamps;
+    $withTimestamps = false;
 
     $pivotCreatedAt;
 
@@ -33,7 +34,7 @@ class BelongsToMany extends Relation {
 
     $using;
 
-    $accessor;
+    $accessor = 'pivot';
 
     constructor($query, $parent, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relationName = null) {
         super($query, $parent);
@@ -59,9 +60,9 @@ class BelongsToMany extends Relation {
             return $table;
         }
 
-        if (in_array(AsPivot.class, class_uses_recursive($model))) {
-            this.using($table);
-        }
+        // if ($model instanceof AsPivot) {
+        //     this.using($table);
+        // }
 
         return $model.getTable();
     }
@@ -144,11 +145,11 @@ class BelongsToMany extends Relation {
     }
 
     getPivotClass() {
-        return this.using || Pivot;
+        return this.$using || Pivot;
     }
 
     using($class) {
-        this.using = $class;
+        this.$using = $class;
 
         return this;
     }
@@ -160,7 +161,7 @@ class BelongsToMany extends Relation {
     }
 
     wherePivot($column, $operator = null, $value = null, $boolean = 'and') {
-        this.pivotWheres.push(arguments);
+        this.$pivotWheres.push(arguments);
 
         return this.where(this.qualifyPivotColumn($column), $operator, $value, $boolean);
     }
@@ -182,7 +183,7 @@ class BelongsToMany extends Relation {
     }
 
     wherePivotIn($column, $values, $boolean = 'and', $not = false) {
-        this.pivotWhereIns.push(arguments);
+        this.$pivotWhereIns.push(arguments);
 
         return this.whereIn(this.qualifyPivotColumn($column), $values, $boolean, $not);
     }
@@ -205,7 +206,7 @@ class BelongsToMany extends Relation {
             throw new InvalidArgumentException('The provided value may not be null.');
         }
 
-        this.pivotValues.push({ column: $column, value: $value });
+        this.$pivotValues.push({ column: $column, value: $value });
 
         return this.wherePivot($column, '=', $value);
     }
@@ -223,7 +224,7 @@ class BelongsToMany extends Relation {
     }
 
     wherePivotNull($column, $boolean = 'and', $not = false) {
-        this.pivotWhereNulls.push(arguments);
+        this.$pivotWhereNulls.push(arguments);
 
         return this.whereNull(this.qualifyPivotColumn($column), $boolean, $not);
     }
@@ -260,9 +261,9 @@ class BelongsToMany extends Relation {
         return $instance;
     }
 
-    firstOrCreate($attributes, $joining = [], $touch = true) {
+    async firstOrCreate($attributes, $joining = [], $touch = true) {
         if (is_null($instance = this.where($attributes).first())) {
-            $instance = this.create($attributes, $joining, $touch);
+            $instance = await this.create($attributes, $joining, $touch);
         }
 
         return $instance;
@@ -384,7 +385,7 @@ class BelongsToMany extends Relation {
 
         this.$query.addSelect(this.shouldSelect($columns));
 
-        return tap(this.$query.paginate($perPage, $columns, $pageName, $page), function($paginator) {
+        return tap(this.$query.paginate($perPage, $columns, $pageName, $page), function ($paginator) {
             this.hydratePivotRelation($paginator.items());
         });
     }
@@ -392,7 +393,7 @@ class BelongsToMany extends Relation {
     simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null) {
         this.$query.addSelect(this.shouldSelect($columns));
 
-        return tap(this.$query.simplePaginate($perPage, $columns, $pageName, $page), function($paginator) {
+        return tap(this.$query.simplePaginate($perPage, $columns, $pageName, $page), function ($paginator) {
             this.hydratePivotRelation($paginator.items());
         });
     }
@@ -400,13 +401,13 @@ class BelongsToMany extends Relation {
     cursorPaginate($perPage = null, $columns = ['*'], $cursorName = 'cursor', $cursor = null) {
         this.$query.addSelect(this.shouldSelect($columns));
 
-        return tap(this.$query.cursorPaginate($perPage, $columns, $cursorName, $cursor), function($paginator) {
+        return tap(this.$query.cursorPaginate($perPage, $columns, $cursorName, $cursor), function ($paginator) {
             this.hydratePivotRelation($paginator.items());
         });
     }
 
     chunk($count, $callback) {
-        return this.prepareQueryBuilder().chunk($count, function($results, $page) {
+        return this.prepareQueryBuilder().chunk($count, function ($results, $page) {
             this.hydratePivotRelation($results.all());
 
             return $callback($results, $page);
@@ -422,7 +423,7 @@ class BelongsToMany extends Relation {
 
         $alias = $alias || this.getRelatedKeyName();
 
-        return this.$query.chunkById($count, function($results) {
+        return this.$query.chunkById($count, function ($results) {
             this.hydratePivotRelation($results.all());
 
             return $callback($results);
@@ -430,7 +431,7 @@ class BelongsToMany extends Relation {
     }
 
     each($callback, $count = 1000) {
-        return this.chunk($count, function($results) {
+        return this.chunk($count, function ($results) {
             for (let $key in $results) {
                 let $value = $results[$key]
                 if ($callback($value, $key) === false) {
@@ -441,7 +442,7 @@ class BelongsToMany extends Relation {
     }
 
     lazy($chunkSize = 1000) {
-        return this.prepareQueryBuilder().lazy($chunkSize).map(function($model) {
+        return this.prepareQueryBuilder().lazy($chunkSize).map(function ($model) {
             this.hydratePivotRelation([$model]);
 
             return $model;
@@ -455,7 +456,7 @@ class BelongsToMany extends Relation {
 
         $alias = $alias || this.getRelatedKeyName();
 
-        return this.prepareQueryBuilder().lazyById($chunkSize, $column, $alias).map(function($model) {
+        return this.prepareQueryBuilder().lazyById($chunkSize, $column, $alias).map(function ($model) {
             this.hydratePivotRelation([$model]);
 
             return $model;
@@ -463,7 +464,7 @@ class BelongsToMany extends Relation {
     }
 
     cursor() {
-        return this.prepareQueryBuilder().cursor().map(function($model) {
+        return this.prepareQueryBuilder().cursor().map(function ($model) {
             this.hydratePivotRelation([$model]);
 
             return $model;
@@ -515,7 +516,8 @@ class BelongsToMany extends Relation {
     }
 
     guessInverseRelation() {
-        return String.camel(String.pluralStudly(class_basename(this.getParent())));
+        return this.getParent().getTable();
+        // return String.camel(String.pluralStudly(class_basename(this.getParent())));
     }
 
     async touch() {
@@ -553,12 +555,12 @@ class BelongsToMany extends Relation {
         return $models;
     }
 
-    create($attributes = [], $joining = [], $touch = true) {
+    async create($attributes = [], $joining = [], $touch = true) {
         $instance = this.$related.newInstance($attributes);
 
         $instance.save({ 'touch': false });
 
-        this.attach($instance, $joining, $touch);
+        await this.attach($instance, $joining, $touch);
 
         return $instance;
     }
@@ -568,7 +570,7 @@ class BelongsToMany extends Relation {
 
         for (let $key in $records) {
             let $record = $records[$key]
-            $instances.push(this.create($record, (array)($joinings[$key] || []), false));
+            $instances.push(await this.create($record, ($joinings[$key] || []), false));
         }
 
         await this.touchIfTouching();
@@ -603,20 +605,20 @@ class BelongsToMany extends Relation {
     }
 
     withTimestamps($createdAt = null, $updatedAt = null) {
-        this.withTimestamps = true;
+        this.$withTimestamps = true;
 
-        this.pivotCreatedAt = $createdAt;
-        this.pivotUpdatedAt = $updatedAt;
+        this.$pivotCreatedAt = $createdAt;
+        this.$pivotUpdatedAt = $updatedAt;
 
         return this.withPivot(this.createdAt(), this.updatedAt());
     }
 
     createdAt() {
-        return this.pivotCreatedAt || this.$parent.getCreatedAtColumn();
+        return this.$pivotCreatedAt || this.$parent.getCreatedAtColumn();
     }
 
     updatedAt() {
-        return this.pivotUpdatedAt || this.$parent.getUpdatedAtColumn();
+        return this.$pivotUpdatedAt || this.$parent.getUpdatedAtColumn();
     }
 
     getForeignPivotKeyName() {

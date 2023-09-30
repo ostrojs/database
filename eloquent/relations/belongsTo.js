@@ -1,4 +1,5 @@
-const Model = require('../model')
+const Model = require('@ostro/contracts/database/eloquent/model')
+
 const Relation = require('./relation')
 const SupportsDefaultModels = require('./concerns/supportsDefaultModels')
 
@@ -86,12 +87,12 @@ class BelongsTo extends implement(Relation, SupportsDefaultModels) {
 
         for (let $model of $models) {
             let $attribute = this.getDictionaryKey($model.getAttribute($foreign));
-            
+
             if (isset($dictionary[$attribute])) {
                 $model.setRelation($relation, $dictionary[$attribute]);
             }
         }
-        
+
         return $models;
     }
 

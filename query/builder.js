@@ -10,6 +10,10 @@ class Builder {
         this.getQuery().where(...arguments)
         return this;
     }
+    whereColumn(column, operator, refColumn) {
+        this.getQuery().whereRaw(column + operator + refColumn)
+        return this;
+    }
 
     whereNot() {
         this.getQuery().whereNot(...arguments)

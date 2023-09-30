@@ -16,7 +16,7 @@ class HasOneOrMany extends Relation {
     }
 
     make($attributes = {}) {
-        return tap(this.$related.newInstance($attributes), function($instance) {
+        return tap(this.$related.newInstance($attributes), function ($instance) {
             this.setForeignAttributesForCreate($instance);
         });
     }
@@ -123,7 +123,7 @@ class HasOneOrMany extends Relation {
     }
 
     updateOrCreate($attributes, $values = {}) {
-        return tap(this.firstOrNew($attributes), function($instance) {
+        return tap(this.firstOrNew($attributes), function ($instance) {
             $instance.fill($values);
 
             $instance.save();
@@ -145,7 +145,7 @@ class HasOneOrMany extends Relation {
     }
 
     create($attributes = {}) {
-        return tap(this.$related.newInstance($attributes), function($instance) {
+        return tap(this.$related.newInstance($attributes), function ($instance) {
             this.setForeignAttributesForCreate($instance);
 
             $instance.save();
