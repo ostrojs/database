@@ -1,7 +1,10 @@
+const Model = require('@ostro/contracts/database/eloquent/model')
+const Collection = require('../../collection')
+const BaseCollection = require('@ostro/contracts/collection/collect');
+const { is_object } = require('@ostro/support/function');
 class InteractsWithPivotTable {
-
     toggle($ids, $touch = true) {
-        $changes = {
+        const $changes = {
             'attached': [],
             'detached': [],
         };
@@ -10,7 +13,7 @@ class InteractsWithPivotTable {
 
         let $detach = Object.values(Object.keys($records).intersection(
             this.newPivotQuery().pluck(this.$relatedPivotKey).all()
-            
+
         ));
 
         if (count($detach) > 0) {
@@ -28,7 +31,7 @@ class InteractsWithPivotTable {
         }
 
         if ($touch && (count($changes['attached']) ||
-                count($changes['detached']))) {
+            count($changes['detached']))) {
             this.touchIfTouching();
         }
 
@@ -57,7 +60,7 @@ class InteractsWithPivotTable {
             $changes['detached'] = this.castKeys($detach);
         }
 
-        let $changes = $changes.concat(this.attachNew($records, $current, false));
+        $changes = $changes.concat(this.attachNew($records, $current, false));
 
         if (count($changes['attached']) ||
             count($changes['updated']) ||
@@ -68,14 +71,14 @@ class InteractsWithPivotTable {
         return $changes;
     }
 
-    syncWithPivotValues($ids, $values, bool $detaching = true) {
-        return this.sync(collect(this.parseIds($ids)).mapWithKeys(function($id) use($values) {
-            return [$id => $values];
+    syncWithPivotValues($ids, $values, $detaching = true) {
+        return this.sync(collect(this.parseIds($ids)).mapWithKeys(function ($id) {
+            return { [$id]: $values };
         }), $detaching);
     }
 
     formatRecordsList($records) {
-        return collect($records).mapWithKeys(function($attributes, $id) {
+        return collect($records).mapWithKeys(function ($attributes, $id) {
             if (!is_array($attributes)) {
                 [$id, $attributes] = [$attributes, []];
             }
@@ -84,16 +87,28 @@ class InteractsWithPivotTable {
         }).all();
     }
 
-    attachNew($records = [], $current, $touch = true) {
-        $changes = { 'attached': [], 'updated': [] };
+    attachNew($records = {}, $current, $touch = true) {
+        const $changes = { 'attached': [], 'updated': [] };
+        for ($id in $records) {
+            const $attributes = $records[$id]
+            if (!in_array($id, $current)) {
+                this.attach($id, $attributes, $touch);
+
+                $changes['attached'].push(this.castKey($id));
+            }
+            else if (count($attributes) > 0 &&
+                this.updateExistingPivot($id, $attributes, $touch)) {
+                $changes['updated'].push(this.castKey($id));
+            }
+        }
         return $changes;
     }
 
     updateExistingPivot($id, $attributes, $touch = true) {
         if (this.$using &&
-            empty(this.pivotWheres) &&
-            empty(this.pivotWhereIns) &&
-            empty(this.pivotWhereNulls)) {
+            empty(this.$pivotWheres) &&
+            empty(this.$pivotWhereIns) &&
+            empty(this.$pivotWhereNulls)) {
             return this.updateExistingPivotUsingCustomClass($id, $attributes, $touch);
         }
 
@@ -101,7 +116,7 @@ class InteractsWithPivotTable {
             $attributes = this.addTimestampsToAttachment($attributes, true);
         }
 
-        $updated = this.newPivotStatementForId(this.parseId($id)).update(
+        const $updated = this.newPivotStatementForId(this.parseId($id)).update(
             this.castAttributes($attributes)
         );
 
@@ -112,58 +127,70 @@ class InteractsWithPivotTable {
         return $updated;
     }
 
-    updateExistingPivotUsingCustomClass($id, $attributes, $touch) {
-        $pivot = this.getCurrentlyAttachedPivots()
-            .where(this.foreignPivotKey, this.$parent. { this.$parentKey })
+    async updateExistingPivotUsingCustomClass($id, $attributes, $touch) {
+        const $pivot = await this.getCurrentlyAttachedPivots()
+            .where(this.$foreignPivotKey, this.$parent[this.$parentKey])
             .where(this.$relatedPivotKey, this.parseId($id))
             .first();
 
-        $updated = $pivot ? $pivot.fill($attributes).isDirty() : false;
+        const $updated = $pivot ? $pivot.fill($attributes).isDirty() : false;
 
         if ($updated) {
-            $pivot.save();
+            await $pivot.save();
         }
 
         if ($touch) {
             this.touchIfTouching();
         }
 
-        return (int) $updated;
+        return $updated;
     }
 
-    attach($id, $attributes = [], $touch = true) {
-        if (this.$using) {
-            this.attachUsingCustomClass($id, $attributes);
-        } else {
+    attach($id = [], $attributes = {}, $touch = true) {
+        const fn = async () => {
+            if (this.$using) {
+                await this.attachUsingCustomClass($id, $attributes);
+            } else {
+                await this.newPivotStatement().insert(this.formatAttachRecords(
+                    this.parseIds($id), $attributes
+                ));
+            }
 
-            this.newPivotStatement().insert(this.formatAttachRecords(
-                this.parseIds($id), $attributes
-            ));
-        }
-
-        if ($touch) {
-            this.touchIfTouching();
-        }
+            if ($touch) {
+                this.touchIfTouching();
+            }
+        };
+        this.$parent.setLazyQuery(fn)
     }
 
     attachUsingCustomClass($id, $attributes) {
         let $records = this.formatAttachRecords(
             this.parseIds($id), $attributes
         );
+        let p = []
+        for (let $record of $records) {
+            p.push(this.newPivot($record, false).save());
+        }
+        return Promise.all(p)
 
     }
 
     formatAttachRecords($ids, $attributes) {
-        $records = [];
+        const $records = [];
 
         let $hasTimestamps = (this.hasPivotColumn(this.createdAt()) ||
             this.hasPivotColumn(this.updatedAt()));
+        for (let $id of $ids) {
+            $records.push(this.formatAttachRecord(
+                this.$relatedKey, $id, $attributes, $hasTimestamps
+            ));
+        }
 
         return $records;
     }
 
     formatAttachRecord($key, $value, $attributes, $hasTimestamps) {
-        let [$id, $attributes] = this.extractAttachIdAndAttributes($key, $value, $attributes);
+        var [$id, $attributes] = this.extractAttachIdAndAttributes($key, $value, $attributes);
 
         return Object.assign(
             this.baseAttachRecord($id, $hasTimestamps), this.castAttributes($attributes)
@@ -171,7 +198,7 @@ class InteractsWithPivotTable {
     }
 
     extractAttachIdAndAttributes($key, $value, $attributes) {
-        return Array.isArray($value) ?
+        return is_object($value) ?
             [$key, Object.assign($value, $attributes)] :
             [$value, $attributes];
     }
@@ -180,7 +207,7 @@ class InteractsWithPivotTable {
         let $record = {}
         $record[this.$relatedPivotKey] = $id;
 
-        $record[this.foreignPivotKey] = this.$parent[this.$parentKey];
+        $record[this.$foreignPivotKey] = this.$parent[this.$parentKey];
 
         if ($timed) {
             $record = this.addTimestampsToAttachment($record);
@@ -192,7 +219,7 @@ class InteractsWithPivotTable {
         let $fresh = this.$parent.freshTimestamp();
 
         if (this.$using) {
-            $pivotModel = new this.$using;
+            const $pivotModel = new this.$using;
 
             $fresh = $fresh.format($pivotModel.getDateFormat());
         }
@@ -215,9 +242,9 @@ class InteractsWithPivotTable {
     detach($ids = null, $touch = true) {
         if (this.$using &&
             !empty($ids) &&
-            empty(this.pivotWheres) &&
-            empty(this.pivotWhereIns) &&
-            empty(this.pivotWhereNulls)) {
+            empty(this.$pivotWheres) &&
+            empty(this.$pivotWhereIns) &&
+            empty(this.$pivotWhereNulls)) {
             $results = this.detachUsingCustomClass($ids);
         } else {
             $query = this.newPivotQuery();
@@ -229,7 +256,7 @@ class InteractsWithPivotTable {
                     return 0;
                 }
 
-                $query.whereIn(this.getQualifiedRelatedPivotKeyName(), (array) $ids);
+                $query.whereIn(this.getQualifiedRelatedPivotKeyName(), $ids);
             }
 
             $results = $query.delete();
@@ -245,32 +272,32 @@ class InteractsWithPivotTable {
     detachUsingCustomClass($ids) {
         $results = 0;
 
-        foreach(this.parseIds($ids) as $id) {
-            $results += this.newPivot([
-                this.foreignPivotKey => this.$parent. { this.$parentKey },
-                this.$relatedPivotKey => $id,
-            ], true).delete();
+        for (let $id of this.parseIds($ids)) {
+            $results += this.newPivot({
+                [this.$foreignPivotKey]: this.$parent[this.$parentKey],
+                [this.$relatedPivotKey]: $id,
+            }, true).delete();
         }
 
         return $results;
     }
 
     getCurrentlyAttachedPivots() {
-        return this.newPivotQuery().get().map(function($record) {
-            $class = this.$using ? : Pivot::class;
+        return this.newPivotQuery().get().map(function ($record) {
+            const $class = this.$using || Pivot;
 
-            $pivot = $class::fromRawAttributes(this.$parent, (array) $record, this.getTable(), true);
+            $pivot = $class.fromRawAttributes(this.$parent, $record, this.getTable(), true);
 
-            return $pivot.setPivotKeys(this.foreignPivotKey, this.$relatedPivotKey);
+            return $pivot.setPivotKeys(this.$foreignPivotKey, this.$relatedPivotKey);
         });
     }
 
     newPivot($attributes = [], $exists = false) {
-        $pivot = this.related.newPivot(
-            this.$parent, $attributes, this.table, $exists, this.$using
+        const $pivot = this.$related.newPivot(
+            this.$parent, $attributes, this.$table, $exists, this.$using
         );
 
-        return $pivot.setPivotKeys(this.foreignPivotKey, this.$relatedPivotKey);
+        return $pivot.setPivotKeys(this.$foreignPivotKey, this.$relatedPivotKey);
     }
 
     newExistingPivot($attributes = []) {
@@ -278,7 +305,7 @@ class InteractsWithPivotTable {
     }
 
     newPivotStatement() {
-        return this.query.getQuery().newQuery().from(this.table);
+        return this.newQuery().getQuery().from(this.$table);
     }
 
     newPivotStatementForId($id) {
@@ -288,19 +315,19 @@ class InteractsWithPivotTable {
     newPivotQuery() {
         $query = this.newPivotStatement();
 
-        foreach(this.pivotWheres as $arguments) {
+        for (let $arguments of this.$pivotWheres) {
             $query.where(...$arguments);
         }
 
-        foreach(this.pivotWhereIns as $arguments) {
+        for (let $arguments of this.$pivotWhereIns) {
             $query.whereIn(...$arguments);
         }
 
-        foreach(this.pivotWhereNulls as $arguments) {
+        for (let $arguments of this.$pivotWhereNulls) {
             $query.whereNull(...$arguments);
         }
 
-        return $query.where(this.getQualifiedForeignPivotKeyName(), this.$parent. { this.$parentKey });
+        return $query.where(this.getQualifiedForeignPivotKeyName(), this.$parent[this.$parentKey]);
     }
 
     withPivot($columns) {
@@ -313,11 +340,11 @@ class InteractsWithPivotTable {
 
     parseIds($value) {
         if ($value instanceof Model) {
-            return [$value. { this.relatedKey }];
+            return [$value[this.$relatedKey]];
         }
 
         if ($value instanceof Collection) {
-            return $value.pluck(this.relatedKey).all();
+            return $value.pluck(this.$relatedKey).all();
         }
 
         if ($value instanceof BaseCollection) {
@@ -328,18 +355,18 @@ class InteractsWithPivotTable {
     }
 
     parseId($value) {
-        return $value instanceof Model ? $value. { this.relatedKey } : $value;
+        return $value instanceof Model ? $value[this.$relatedKey] : $value;
     }
 
     castKeys($keys) {
-        return $keys.map(function($v) {
+        return $keys.map(function ($v) {
             return this.castKey($v);
         });
     }
 
     castKey($key) {
         return this.getTypeSwapValue(
-            this.related.getKeyType(),
+            this.$related.getKeyType(),
             $key
         );
     }
@@ -354,13 +381,13 @@ class InteractsWithPivotTable {
         switch (strtolower($type)) {
             case 'int':
             case 'integer':
-                return (int) $value;
+                return $value;
             case 'real':
             case 'float':
             case 'double':
-                return (float) $value;
+                return $value;
             case 'string':
-                return (string) $value;
+                return $value.toString();
             default:
                 return $value;
         }
