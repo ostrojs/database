@@ -1,6 +1,5 @@
 const Collection = require('@ostro/support/collection');
 const { trim, last } = require('@ostro/support/function');
-
 class Builder {
     from() {
         this.getQuery().from(...arguments)
@@ -8,6 +7,10 @@ class Builder {
     }
     where() {
         this.getQuery().where(...arguments)
+        return this;
+    }
+    whereColumn(column, operator, refColumn) {
+        this.getQuery().whereRaw(column + operator + refColumn)
         return this;
     }
 
