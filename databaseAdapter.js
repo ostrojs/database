@@ -1,6 +1,5 @@
 const QueryBuilder = require('./QueryBuilder')
 const { Macroable } = require('@ostro/support/macro')
-const knex = require('knex')
 const kAdapter = Symbol('adapter')
 const kSchema = Symbol('schema')
 const kConnectionName = Symbol('connectionName')
@@ -39,18 +38,18 @@ class DatabaseAdapter extends Macroable {
             return acquireConnection()
         }
 
-        let closeConnection = function() {
+        let closeConnection = function () {
             i--;
             if (i == 0) {
                 disconnectConnection();
             }
         }
 
-        this[kAdapter].client.on('query-error', function() {
+        this[kAdapter].client.on('query-error', function () {
             closeConnection();
         })
 
-        this[kAdapter].client.on('query-response', function() {
+        this[kAdapter].client.on('query-response', function () {
             closeConnection();
         })
 
@@ -84,6 +83,10 @@ class DatabaseAdapter extends Macroable {
 
     getSchemaBuilder() {
         return this[kAdapter]['schema']
+    }
+
+    getColumnListing(tableName) {
+        return this.table(tableName).columnInfo().then(columns => Object.keys(columns));
     }
 
     getName() {
