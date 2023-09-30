@@ -4,6 +4,9 @@ const BelongsTo = require('../relations/belongsTo')
 const HasOneThrough = require('../relations/hasOneThrough')
 const HasManyThrough = require('../relations/hasManyThrough')
 const BelongsToMany = require('../relations/belongsToMany')
+const { getCallerFunctionName, exists } = require('@ostro/support/function')
+
+const Collect = require('@ostro/support/collection')
 const kRelation = Symbol('relation')
 const kTouches = Symbol('touches')
 
@@ -22,7 +25,7 @@ class HasRelationships {
     static $relationResolvers = {};
 
     static resolveRelationUsing($name, $callback) {
-        
+
     }
 
     hasOne($related, $foreignKey = null, $localKey = null) {
@@ -65,7 +68,12 @@ class HasRelationships {
     belongsTo($related, $foreignKey = null, $ownerKey = null, $relation = null) {
         $related = typeof $related == 'string' ? require($related) : $related
 
+        if (is_null($relation)) {
+            $relation = this.guessBelongsToRelation();
+        }
+
         let $instance = this.newRelatedInstance($related);
+
 
         if (is_null($foreignKey)) {
             $foreignKey = String.snakeCase($relation) + '_' + $instance.getKeyName();
@@ -73,15 +81,24 @@ class HasRelationships {
 
         $ownerKey = $ownerKey || $instance.getKeyName();
 
-        return this.newBelongsTo(
+        const belongsToRelation = this.newBelongsTo(
             $instance.newQuery(), this, $foreignKey, $ownerKey, $relation
-        );
+        )
+        if (this.$exists && !getCallerFunctionName('eagerLoadRelation')) {
+            belongsToRelation.addEagerConstraints(new Collect([this]));
+        }
+        return belongsToRelation
+
     }
 
     newBelongsTo($query, $child, $foreignKey, $ownerKey, $relation) {
         return new BelongsTo($query, $child, $foreignKey, $ownerKey, $relation);
     }
 
+    guessBelongsToRelation() {
+        return getCallerFunctionName('belongsTo');
+
+    }
     hasMany($related, $foreignKey = null, $localKey = null) {
         $related = typeof $related == 'string' ? require($related) : $related
         let $instance = this.newRelatedInstance($related);
@@ -108,7 +125,7 @@ class HasRelationships {
 
         $secondKey = $secondKey || $through.getForeignKey();
 
-        return this.newHasManyThrough(
+        const hasManyThroughRelation = this.newHasManyThrough(
             this.newRelatedInstance($related).newQuery(),
             this,
             $through,
@@ -117,6 +134,10 @@ class HasRelationships {
             $localKey || this.getKeyName(),
             $secondLocalKey || $through.getKeyName()
         );
+        if (this.$exists && !getCallerFunctionName('eagerLoadRelation')) {
+            hasManyThroughRelation.addEagerConstraints(new Collect([this]));
+        }
+        return hasManyThroughRelation
     }
 
     newHasManyThrough($query, $farParent, $throughParent, $firstKey, $secondKey, $localKey, $secondLocalKey) {
@@ -153,7 +174,7 @@ class HasRelationships {
     }
 
     guessBelongsToManyRelation() {
-        return null
+        return getCallerFunctionName('belongsToMany')
 
     }
 
@@ -161,7 +182,7 @@ class HasRelationships {
 
         let $segments = [
             $instance ? $instance.joiningTableSegment() :
-            String.snakeCase(class_basename($related)),
+                String.snakeCase(class_basename($related)),
             this.joiningTableSegment(),
         ];
 
@@ -202,14 +223,22 @@ class HasRelationships {
         return this[kRelation]
     }
 
+    existsRelation($key) {
+        return Boolean(this.relationLoaded($key))
+    }
+
     relationLoaded($key) {
         return exists(this.getRelations()[$key]);
+    }
+    relation(relation) {
+        return this.getRelations()[relation]
     }
 
     setRelation($relation, $value = null) {
 
-        Object.defineProperty(this, $relation, { value: $value, writable: true })
-        this.getRelations()[$relation] = this[$relation]
+        // Object.defineProperty(this, $relation, { value: $value, writable: true })
+        // this.getRelations()[$relation] = this[$relation]
+        this.getRelations()[$relation] = $value;
 
         return this;
     }
