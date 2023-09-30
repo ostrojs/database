@@ -1,5 +1,6 @@
 const Collection = require('@ostro/support/collection');
 const { trim, last } = require('@ostro/support/function');
+
 class Builder {
     from() {
         this.getQuery().from(...arguments)
