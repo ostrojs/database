@@ -31,14 +31,12 @@ class HasTimestamps {
     }
 
     setCreatedAt($value) {
-        this[this.getCreatedAtColumn()] = $value;
-
+        this.setAttribute(this.getCreatedAtColumn(), $value)
         return this;
     }
 
     setUpdatedAt($value) {
-        this[this.getUpdatedAtColumn()] = $value;
-
+        this.setAttribute(this.getUpdatedAtColumn(), $value)
         return this;
     }
 
