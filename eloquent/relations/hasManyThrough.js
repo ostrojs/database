@@ -130,7 +130,7 @@ class HasManyThrough extends implement(Relation, InteractsWithDictionary) {
     async first($columns = ['*']) {
         let $results = await this.take(1).get($columns);
 
-        return count($results) > 0 ? $results.first() : null;
+        return $results.length ? $results.first() : null;
     }
 
     async firstOrFail($columns = ['*']) {
@@ -234,7 +234,7 @@ class HasManyThrough extends implement(Relation, InteractsWithDictionary) {
     }
 
     each($callback, $count = 1000) {
-        return this.chunk($count, function($results) {
+        return this.chunk($count, function ($results) {
             for (let [$key, $value] in $results) {
                 if ($callback($value, $key) === false) {
                     return false;
