@@ -1,13 +1,9 @@
-const fs = require('fs')
 class Sqlite {
-    constructor(client, clientPackage = 'sqlite3', dbPath, migrationTable = 'migrations') {
+    constructor(client, clientPackage = 'sqlite3', dbPath) {
         return client({
             client: clientPackage,
             connection: {
                 filename: (dbPath)
-            },
-            migrations: {
-                tableName: migrationTable
             },
             useNullAsDefault: true,
             asyncStackTraces: true

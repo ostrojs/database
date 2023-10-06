@@ -1,6 +1,7 @@
 class DatabaseMigrationRepository {
     $resolver;
     $table;
+    $connection;
     constructor($resolver, $table) {
         this.$resolver = $resolver;
         this.$table = $table;
@@ -55,16 +56,16 @@ class DatabaseMigrationRepository {
     createRepository() {
         let $schema = this.getConnection().getSchemaBuilder();
 
-        return $schema.createTable(this.$table, function($table) {
+        return $schema.createTable(this.$table, function ($table) {
             $table.increments('id');
             $table.string('migration');
             $table.integer('batch');
         });
     }
 
-    repositoryExists() {
+    async repositoryExists() {
         let $schema = this.getConnection().getSchemaBuilder();
-        return $schema.hasTable(this.$table);
+        return $schema.hasTable(this.$table)
     }
 
     deleteRepository() {

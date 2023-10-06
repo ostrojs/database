@@ -1,10 +1,13 @@
-const Schema = require('../schema')
+class Oracle {
+    constructor(client, connection) {
+        return client({
+            client: 'oracle',
+            connection: connection,
+            useNullAsDefault: true,
+            asyncStackTraces: true
+        })
+    }
 
-class MysqlSchema extends Schema{
+}
 
-	static dropAllTables(){
-		throw Error('dropAllTables feature does not exist.')
-	}
-} 
-
-module.exports = MysqlSchema
+module.exports = Oracle

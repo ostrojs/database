@@ -1,11 +1,10 @@
 const BaseCommand = require('./baseCommand')
-const Collection = require('@ostro/support/collection')
 class StatusCommand extends BaseCommand {
 
     $signature = 'migrate:status';
 
     $description = 'Show the status of each migration';
-    
+
     $options = [
         this.createOption('--database [database]', 'The database connection to use'),
         this.createOption('--path', 'The path(s) to the migrations files to be executed'),
@@ -20,9 +19,8 @@ class StatusCommand extends BaseCommand {
 
     handle() {
         return this.$migrator.usingConnection(this.option('database')).then(async ($connection) => {
-            if (!this.$migrator.repositoryExists()) {
+            if (!await this.$migrator.repositoryExists()) {
                 this.error('Migration table not found.');
-
                 return 1;
             }
 

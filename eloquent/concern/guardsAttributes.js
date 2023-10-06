@@ -11,6 +11,24 @@ class GuardsAttributes {
         return this.$fillable;
     }
 
+    fillableData($values) {
+        const datas = [];
+        if (!Array.isArray($values)) {
+            $values = [$values]
+        }
+        for (let obj of $values) {
+            const keys = Object.keys(obj);
+            const fillableData = {};
+            for (let key of keys) {
+                if (this.isFillable(key)) {
+                    fillableData[key] = obj[key];
+                }
+            }
+            datas.push(fillableData)
+        }
+        return datas;
+    }
+
     fillable($fillable) {
         this.$fillable = $fillable;
 

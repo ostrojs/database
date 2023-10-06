@@ -1,4 +1,3 @@
-const kSchema = Symbol('client')
 class Schema {
     static connection(connection) {
         this.schema = connection
@@ -12,7 +11,7 @@ class Schema {
     }
 
     static table() {
-        return this.schema.table(...arguments).then(res => true)
+        return this.schema.table(...arguments)
     }
 
     static has() {
@@ -32,12 +31,30 @@ class Schema {
         return this.schema.dropTableIfExists(table)
 
     }
+
+    static dropTableIfExists(table) {
+        return this.dropTableIfExists(table)
+
+    }
+
+    static dropSchema() {
+        return this.schema.dropSchema(...arguments)
+
+    }
+
+    static dropSchemaIfExists() {
+        return this.schema.dropSchemaIfExists(...arguments)
+
+    }
+
     static dropAllTables() {
 
     }
+    
     static dropAllViews() {
 
     }
+    
     static dropAllTypes() {
 
     }

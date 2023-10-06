@@ -4,6 +4,8 @@ const kAdapter = Symbol('adapter')
 const kSchema = Symbol('schema')
 const kConnectionName = Symbol('connectionName')
 const { debounce } = require('@ostro/support/function')
+const ObjectGet = require('lodash.get');
+const kConfig = Symbol('config')
 class DatabaseAdapter extends Macroable {
     constructor($adapter, $schema, $name, $config = {}) {
         super()
@@ -12,8 +14,10 @@ class DatabaseAdapter extends Macroable {
         $schema.connection($adapter['schema']);
         this[kSchema] = $schema;
         this.active = true;
-        let closeTime = $config['connectionCloseTime'] || 1000
-        let destroy = $config['destroy'] || true
+        let closeTime = $config['connectionCloseTime'] || 1000;
+        let destroy = $config['destroy'] || true;
+        this.$schemaName = $config['schema'];
+        this[kConfig] = $config;
         let disconnectConnection = debounce(() => {
             if (destroy == true) {
                 this.destroy();
@@ -94,7 +98,15 @@ class DatabaseAdapter extends Macroable {
     }
 
     destroy() {
-        this[kAdapter].destroy()
+        return this[kAdapter].destroy()
+    }
+
+    getSchemaName() {
+        return this.$schemaName
+    }
+
+    getConfig(key, value) {
+        return ObjectGet(this[kConfig], key, value);
     }
 }
 

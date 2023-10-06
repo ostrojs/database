@@ -39,21 +39,21 @@ class WipeCommand extends Command {
     }
 
     dropAllTables($database) {
-        return this.$app['db'].connection($database)
+        return this.$app.db.connection($database)
             .schema()
-            .dropAllTables();
+            .dropAllTables(this.$app.db.connection($database));
     }
 
     dropAllViews($database) {
-        return this.$app['db'].connection($database)
+        return this.$app.db.connection($database)
             .schema()
-            .dropAllViews();
+            .dropAllViews(this.$app.db.connection($database));
     }
 
     dropAllTypes($database) {
-        return this.$app['db'].connection($database)
+        return this.$app.db.connection($database)
             .schema()
-            .dropAllTypes();
+            .dropAllTypes(this.$app.db.connection($database));
     }
 
 }

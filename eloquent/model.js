@@ -239,7 +239,8 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         throw Error('Under development')
     }
 
-    insert($values, $ids) {
+    async insert($values, $ids) {
+        // const datas = this.fillableData($values)
         this.addTimestampsToInsertValues($values)
         let query = this.$query.insert($values)
         if ($ids) {
@@ -708,6 +709,9 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         return target.setAttribute(key, value)
     }
     __get(target, key) {
+        return target.getAttribute(key)
+    }
+    __getPassThrough(target, key) {
         return target.getAttribute(key)
     }
     static __call(target, method, args) {
