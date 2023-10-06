@@ -1,9 +1,10 @@
 const Schema = require('../schema')
-class OracleSchema extends Schema {
+class PgSqlSchema extends Schema {
     static async dropAllTables(db) {
         const promises = [];
-        const tableNames = await db.table('user_tables')
-            .pluck('table_name');
+        const tableNames = await db.table('pg_tables')
+            .where('schemaname', db.getConfig('schema', 'public'))
+            .pluck('tablename');
         for (const name of tableNames) {
             promises.push(this.dropIfExists(name));
         }
@@ -12,4 +13,4 @@ class OracleSchema extends Schema {
     }
 }
 
-module.exports = OracleSchema
+module.exports = PgSqlSchema
