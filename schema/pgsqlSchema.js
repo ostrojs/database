@@ -6,7 +6,7 @@ class PgSqlSchema extends Schema {
             .where('schemaname', db.getConfig('schema', 'public'))
             .pluck('tablename');
         for (const name of tableNames) {
-            // promises.push(this.dropIfExists(name));
+            promises.push(this.dropIfExists(name));
         }
         return Promise.all(promises)
 
