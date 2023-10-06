@@ -1,5 +1,4 @@
 const Command = require('@ostro/console/command')
-const fs = require('fs-extra')
 const path = require('path')
 const InvalidArgumentException = require('@ostro/support/exceptions/invalidArgumentException')
 class SeedCommand extends Command {
@@ -14,9 +13,9 @@ class SeedCommand extends Command {
     $description = 'Seed the database with records';
 
     $options = [
-        this.createOption('--file <file>', 'Enter seeder files name').default('database/seeders/databaseSeeder'),
+        this.createOption('--class <class>', 'Enter seeder class name').default('database/seeders/databaseSeeder'),
         this.createOption('--database <database>', 'The database connection to seed'),
-        this.createOption('--force <force>', 'Force the operation to run when in production')
+        this.createOption('--force', 'Force the operation to run when in production')
     ];
 
     $arguments = [
@@ -40,10 +39,10 @@ class SeedCommand extends Command {
     }
 
     async getSeeder($connection) {
-        let $class = this.input.getArgument('file') || this.input.getOption('file');
+        let $class = this.input.getArgument('file') || this.input.getOption('class');
 
         if ($class.includes('/') === false) {
-            $class = 'database/seeders/' + $class;
+            $class = path.resolve('database/seeders/', $class);
         }
         if ($class === 'database/seeders/databaseSeeder' && await is_file($class)) {
             $class = 'databaseSeeder';

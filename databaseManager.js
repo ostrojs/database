@@ -25,23 +25,26 @@ class DatabaseManager extends Manager {
     }
 
     createSqliteDriver($config, $name) {
-        return this.adapt(new(require('./adapter/sqlite'))(knex, 'sqlite3',$config['database'], $config['migrations']), require('./schema/sqliteSchema'), $name);
+        return this.adapt(new (require('./adapter/sqlite'))(knex, 'sqlite3', $config['database'], $config['migrations']), require('./schema/sqliteSchema'), $name, $config);
     }
 
     createMysqlDriver($config, $name) {
-        return this.adapt(new(require('./adapter/mysql'))(knex, 'mysql', $config, $config['migrations']), require('./schema/mysqlSchema'), $name);
+        return this.adapt(new (require('./adapter/mysql'))(knex, 'mysql', $config, $config['migrations']), require('./schema/mysqlSchema'), $name, $config);
     }
     createMysql2Driver($config, $name) {
-        return this.adapt(new(require('./adapter/mysql'))(knex, 'mysql2', $config, $config['migrations']), require('./schema/mysqlSchema'), $name);
+        return this.adapt(new (require('./adapter/mysql'))(knex, 'mysql2', $config, $config['migrations']), require('./schema/mysqlSchema'), $name, $config);
+    }
+    createPgsqlDriver($config, $name) {
+        return this.adapt(new (require('./adapter/pgsql'))(knex, $config, $config['migrations']), require('./schema/pgsqlSchema'), $name, $config);
     }
 
     createOracleDriver($config, $name) {
-        return this.adapt(new(require('./adapter/oracle'))(knex, $config, $config['migrations']), require('./schema/Oracle'), $name);
+        return this.adapt(new (require('./adapter/oracle'))(knex, $config, $config['migrations']), require('./schema/Oracle'), $name, $config);
     }
 
-    adapt($database, Schema, $name) {
+    adapt($database, Schema, $name, $config) {
         Schema = Object.create(Schema)
-        return new DatabaseAdapter($database, Schema, $name);
+        return new DatabaseAdapter($database, Schema, $name, $config);
     }
 
     repository($driver) {

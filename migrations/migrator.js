@@ -22,7 +22,7 @@ class Migrator {
         return this.getMigrationFiles($paths).then($files => {
 
             return this.$repository.getRan().then(async (res) => {
-                let $migrations = this.pendingMigrations($files, res)
+                let $migrations = await this.pendingMigrations($files, res)
                 return await this.runPending($migrations, $options)
             })
 
@@ -146,7 +146,7 @@ class Migrator {
 
     async resetMigrations($migrations, $paths, $pretend = false) {
 
-        $migrations = collect($migrations).map(function($m) {
+        $migrations = collect($migrations).map(function ($m) {
             return {
                 'migration': $m
             };
@@ -181,7 +181,7 @@ class Migrator {
     async runMigration($migration, $method) {
         Schema.connection(this.resolveConnection().getSchemaBuilder())
 
-        let $callback = async function() {
+        let $callback = async function () {
             if (typeof $migration[$method] == 'function') {
                 await $migration[$method]();
             }
@@ -215,7 +215,7 @@ class Migrator {
             $migration.getConnection()
         );
 
-        return $db.pretend(function() {
+        return $db.pretend(function () {
             if (method_exists($migration, $method)) {
                 $migration[$method]();
             }
