@@ -39,7 +39,7 @@ class DatabaseManager extends Manager {
     }
 
     createOracleDriver($config, $name) {
-        return this.adapt(new (require('./adapter/oracle'))(knex, $config, $config['migrations']), require('./schema/Oracle'), $name, $config);
+        return this.adapt(new (require('./adapter/oracle'))(knex, $config, $config['migrations']), require('./schema/oracleSchema'), $name, $config);
     }
 
     adapt($database, Schema, $name, $config) {
