@@ -4,7 +4,7 @@ class MysqlSchema extends Schema {
 		const promises = [];
 		const tableNames = await db.table('information_schema.tables')
 			.where('table_schema', db.getConfig('database')) // Replace with your database name
-			.andWhere('table_type', 'BASE TABLE')
+			.where('table_type', 'BASE TABLE')
 			.pluck('table_name');
 		for (const name of tableNames) {
 			promises.push(this.dropIfExists(name));
