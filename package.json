@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@ostro/contracts": "^1.0.0",
-    "@ostro/support": "^1.0.9",
+    "@ostro/support": "^1.0.10",
     "fs-extra": "^8.1.0",
     "knex": "^2.3.0",
     "lodash.get": "^4.4.2"
