@@ -236,8 +236,7 @@ class HasRelationships {
 
     setRelation($relation, $value = null) {
 
-        // Object.defineProperty(this, $relation, { value: $value, writable: true })
-        // this.getRelations()[$relation] = this[$relation]
+        Object.defineProperty(this, '$$' + $relation, { value: $value, writable: true })
         this.getRelations()[$relation] = $value;
 
         return this;
