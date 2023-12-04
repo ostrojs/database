@@ -4,7 +4,7 @@ const BelongsTo = require('../relations/belongsTo')
 const HasOneThrough = require('../relations/hasOneThrough')
 const HasManyThrough = require('../relations/hasManyThrough')
 const BelongsToMany = require('../relations/belongsToMany')
-const { getCallerFunctionName, exists } = require('@ostro/support/function')
+const { getCallerFunctionName, exists, get_class } = require('@ostro/support/function')
 
 const Collect = require('@ostro/support/collection')
 const kRelation = Symbol('relation')
@@ -203,10 +203,8 @@ class HasRelationships {
         for (let $relation of this.getTouchedRelations()) {
             this[$relation]().touch();
 
-            if (this.$relation instanceof this.constructor) {
-                this.$relation.fireModelEvent('saved', false);
-
-                this.$relation.touchOwners();
+            if (this.getRelations() instanceof get_class(this)) {
+                this.getRelations().touchOwners();
             }
         }
     }

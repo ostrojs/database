@@ -20,6 +20,7 @@ const kPerformRelationQuery = Symbol('performRelationQuery')
 const kLazyQueries = Symbol('lazyQueries')
 const Collection = require('./collection')
 const ModelInterface = require('@ostro/contracts/database/eloquent/model')
+const { is_array, count, in_array, clone } = require('@ostro/support/function')
 
 class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRelationships, HasRelationships, HasAttributes, HidesAttributes, HasTimestamps) {
 
@@ -59,10 +60,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         super()
         Object.defineProperty(this, kQuery, { value: null, writable: true })
         const $attributesKeys = Object.keys($attributes)
-        let instance = this;
-        if (Array.isArray($attributesKeys) && $attributesKeys.length && newInstance == true) {
-            instance = this.newInstance($attributes, this.$exists);
-        }
+        var instance = newInstance == true  ? this.newInstance($attributes, this.$exists, false) : this;
         instance.fill($attributes);
         return instance
     }
@@ -73,7 +71,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
     getConnection() {
 
-        return this.constructor.resolveConnection(this.getConnectionName());
+        return get_class(this).resolveConnection(this.getConnectionName());
     }
 
     getConnectionName() {
@@ -339,7 +337,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         })
     }
 
-    newInstance(attributes, $exists = false, newInstance = false) {
+    newInstance(attributes, $exists = false, newInstance = true) {
 
         let $model = new (this.constructor)(attributes, newInstance)
         $model.$exists = $exists;
@@ -363,12 +361,15 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
             this.newBaseQueryBuilder()
         ).setModel(this);
     }
+
     newBaseQueryBuilder() {
         return Model.getConnectionResolver().table(this.$table)
     }
+
     newEloquentBuilder($query) {
-        this.$query = $query
-        return this
+        const $model = new this.constructor({}, false)
+        $model.$query = $query
+        return $model
     }
 
     hydrate($items) {
@@ -389,7 +390,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         );
     }
 
-    newFromBuilder($attributes = [], $connection = null) {
+    newFromBuilder($attributes = {}, $connection = null) {
         let $model = this.newInstance({}, true);
         $model.setRawAttributes($attributes, true);
         $model.setConnection($connection || this.getConnectionName());
@@ -442,11 +443,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
                 throw RelationNotFoundException.make(this.getModel(), $name);
 
             }
-            try {
-                return instance[$name]()
-            } catch (err) {
-                console.error(err)
-            }
+            return instance[$name]()
         });
 
         let $nested = this.relationsNestedUnder($name);
@@ -496,8 +493,38 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         return $models;
     }
 
+    clone() {
+        const $model = this.newModelInstance();
+        $model.$query.$query = this.getQuery().clone();
+        $model.forceFill(clone(this.$attributes));
+        return $model;
+
+    }
+
+    withAttributes(skipColumns = [], withTimestamp = false) {
+        const $attributes = this.getAttributes();
+
+        if (typeof skipColumns == "boolean") {
+            withTimestamp = skipColumns;
+        }
+        if (withTimestamp === false) {
+            skipColumns.push(this.CREATED_AT);
+            skipColumns.push(this.UPDATED_AT);
+        }
+        const filteredAttributes = Object.keys($attributes).reduce((result, key) => {
+            if (!skipColumns.includes(key)) {
+                result[key] = $attributes[key];
+            }
+            return result;
+        }, {});
+
+        this.where(filteredAttributes);
+
+        return this
+    }
+
     async get() {
-        let $models = await this.getModels()
+        let $models = await this.getModels();
         if ($models.length > 0) {
             $models = await this.eagerLoadRelations($models);
 
@@ -618,15 +645,62 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
         return true;
     }
+
     [kPerformRelationQuery]() {
         return Promise.all(this[kLazyQueries].map(fn => fn()))
     }
+
     setLazyQuery(fn) {
         if (Array.isArray(fn)) {
             return this[kLazyQueries] = this[kLazyQueries].concat(fn)
         }
         return this[kLazyQueries].push(fn)
     }
+
+    whereKey($id) {
+        if ($id instanceof Model) {
+            $id = $id.getKey();
+        }
+
+        if (is_array($id)) {
+            if (in_array(this.getModel().getKeyType(), ['int', 'integer'])) {
+                this.$query.whereIntegerInRaw(this.getModel().getQualifiedKeyName(), $id);
+            } else {
+                this.$query.whereIn(this.getModel().getQualifiedKeyName(), $id);
+            }
+
+            return this;
+        }
+
+        if ($id !== null && this.getModel().getKeyType() === 'string') {
+            $id = $id.toString();
+        }
+
+        return this.where(this.getModel().getQualifiedKeyName(), '=', $id);
+    }
+
+    whereKeyNot($id) {
+        if ($id instanceof Model) {
+            $id = $id.getKey();
+        }
+
+        if (is_array($id)) {
+            if (in_array(this.getModel().getKeyType(), ['int', 'integer'])) {
+                this.$query.whereIntegerNotInRaw(this.getModel().getQualifiedKeyName(), $id);
+            } else {
+                this.$query.whereNotIn(this.getModel().getQualifiedKeyName(), $id);
+            }
+
+            return this;
+        }
+
+        if ($id !== null && this.getModel().getKeyType() === 'string') {
+            $id = $id.toString();
+        }
+
+        return this.where(this.getModel().getQualifiedKeyName(), '!=', $id);
+    }
+
     destroy(id) {
         let where = {
             [this.$primaryKey]: id
@@ -667,6 +741,70 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         this.$exists = false;
     }
 
+    async firstOrNew($attributes = {}, $values = {}) {
+        const $instance = await this.where($attributes).first()
+        if (!is_null($instance)) {
+            return $instance;
+        }
+
+        return this.newModelInstance(Object.assign($attributes, $values));
+    }
+
+    async findOrFail($id = [], $columns = ['*']) {
+        const $result = await this.find($id, $columns);
+
+
+        if (is_array($id)) {
+            if (count($result) !== count($id.unique())) {
+                throw (new ModelNotFoundException).setModel(
+                    get_class(this.getModel()), $id.difference($result.modelKeys())
+                );
+            }
+
+            return $result;
+        }
+
+        if (is_null($result)) {
+            throw (new ModelNotFoundException).setModel(
+                get_class(this.getModel()), $id
+            );
+        }
+
+        return $result;
+    }
+
+    async findOrNew($id, $columns = ['*']) {
+        const $model = await this.find($id, $columns);
+        if (!is_null($model)) {
+            return $model;
+        }
+
+        return this.newModelInstance();
+    }
+
+    async findOr($id, $columns = ['*'], $callback = null) {
+        if (typeof $columns == 'function') {
+            $callback = $columns;
+
+            $columns = ['*'];
+        }
+        const $model = await this.find($id, $columns)
+        if (!is_null($model)) {
+            return $model;
+        }
+
+        return $callback();
+    }
+
+    async firstOrFail($columns = ['*']) {
+        const $model = await this.first($columns);
+        if (!is_null($model)) {
+            return $model;
+        }
+
+        throw (new ModelNotFoundException).setModel(get_class(this.getModel()));
+    }
+
     firstOrCreate(where, create = {}) {
         return this.where(where).first().then(res => {
             if (!res) {
@@ -674,6 +812,19 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
             }
             return res
         })
+    }
+    firstOr($columns = ['*'], $callback = null) {
+        if (typeof $columns == 'function') {
+            $callback = $columns;
+
+            $columns = ['*'];
+        }
+        const $model = this.first($columns)
+        if (!is_null($model)) {
+            return $model;
+        }
+
+        return $callback();
     }
 
     updateOrCreate(where = {}, update = {}) {
@@ -699,6 +850,10 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
     }
 
+    toBase() {
+        return this.applyScopes().getQuery();
+    }
+
     __set(target, key, value) {
         if (!target.$exists) {
             throw Error('Instance is not alive.')
@@ -708,12 +863,11 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         }
         return target.setAttribute(key, value)
     }
+
     __get(target, key) {
         return target.getAttribute(key)
     }
-    __getPassThrough(target, key) {
-        return target.getAttribute(key)
-    }
+
     static __call(target, method, args) {
 
         target = (new target())
