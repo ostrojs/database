@@ -60,10 +60,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         super()
         Object.defineProperty(this, kQuery, { value: null, writable: true })
         const $attributesKeys = Object.keys($attributes)
-        let instance = this;
-        if (Array.isArray($attributesKeys) && $attributesKeys.length && newInstance == true) {
-            instance = this.newInstance($attributes, this.$exists);
-        }
+        var instance = newInstance == true  ? this.newInstance($attributes, this.$exists, false) : this;
         instance.fill($attributes);
         return instance
     }
@@ -340,7 +337,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         })
     }
 
-    newInstance(attributes, $exists = false, newInstance = false) {
+    newInstance(attributes, $exists = false, newInstance = true) {
 
         let $model = new (this.constructor)(attributes, newInstance)
         $model.$exists = $exists;
@@ -446,11 +443,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
                 throw RelationNotFoundException.make(this.getModel(), $name);
 
             }
-            try {
-                return instance[$name]()
-            } catch (err) {
-                console.error(err)
-            }
+            return instance[$name]()
         });
 
         let $nested = this.relationsNestedUnder($name);
