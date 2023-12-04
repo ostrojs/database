@@ -248,7 +248,7 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
     async findOrNew($id, $columns = ['*']) {
         let $instance = await this.find($id, $columns)
         if (is_null($instance)) {
-            $instance = this.$related.newInstance({});
+            $instance = this.$related.newInstance();
         }
 
         return $instance;
@@ -258,6 +258,7 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
         let $instance = await this.where($attributes).first();
         if (is_null($instance)) {
             $instance = this.$related.newInstance($attributes);
+            $instance.fill($attributes);
         }
 
         return $instance;
@@ -561,6 +562,7 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
 
     async create($attributes = [], $joining = [], $touch = true) {
         $instance = this.$related.newInstance($attributes);
+        $instance.fill($attributes);
 
         $instance.save({ 'touch': false });
 
