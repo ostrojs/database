@@ -1,14 +1,14 @@
 {
   "name": "@ostro/database",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Database module for OstroJS",
   "main": "databaseManager.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@ostro/contracts": "^1.0.0",
-    "@ostro/support": "^1.0.10",
+    "@ostro/contracts": "^1.0.2",
+    "@ostro/support": "^1.0.11",
     "fs-extra": "^8.1.0",
     "knex": "^2.3.0",
     "lodash.get": "^4.4.2"
