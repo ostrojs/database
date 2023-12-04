@@ -59,10 +59,11 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     constructor($attributes = {}, newInstance = true) {
         super()
         Object.defineProperty(this, kQuery, { value: null, writable: true })
-        const $attributesKeys = Object.keys($attributes)
-        var instance = newInstance == true  ? this.newInstance($attributes, this.$exists, false) : this;
-        instance.fill($attributes);
-        return instance
+        if (newInstance == true) {
+            return this.newInstance($attributes, this.$exists, false)
+        };
+        this.fill($attributes);
+        return this
     }
 
     raw() {
@@ -337,7 +338,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
         })
     }
 
-    newInstance(attributes, $exists = false, newInstance = true) {
+    newInstance(attributes, $exists = false, newInstance = false) {
 
         let $model = new (this.constructor)(attributes, newInstance)
         $model.$exists = $exists;
@@ -351,7 +352,9 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     newModelInstance($attributes) {
-        return this.newInstance($attributes).setConnection(
+        const $instance = this.newInstance();
+        $instance.fill($attributes);
+        return $instance.setConnection(
             this.getConnection().getName()
         );
     }
@@ -367,7 +370,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     newEloquentBuilder($query) {
-        const $model = new this.constructor({}, false)
+        const $model = this.newInstance()
         $model.$query = $query
         return $model
     }
@@ -391,7 +394,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
     }
 
     newFromBuilder($attributes = {}, $connection = null) {
-        let $model = this.newInstance({}, true);
+        let $model = this.newInstance({}, true, false);
         $model.setRawAttributes($attributes, true);
         $model.setConnection($connection || this.getConnectionName());
 
