@@ -107,7 +107,7 @@ class HasManyThrough extends implement(Relation, InteractsWithDictionary) {
     }
 
     async firstOrNew($attributes) {
-        let $instance = await this.where($attributes).first()
+        let $instance = await this.$parent.where($attributes).first()
         if (is_null($instance)) {
             $instance = this.$related.newInstance($attributes);
         }

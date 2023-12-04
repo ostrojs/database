@@ -332,7 +332,7 @@ class InteractsWithPivotTable {
 
     withPivot($columns) {
         this.$pivotColumns = this.$pivotColumns.concat(
-            this.$pivotColumns, Array.isArray($columns) ? $columns : arguments
+            Array.isArray($columns) ? $columns : [...arguments]
         );
 
         return this;
@@ -381,7 +381,7 @@ class InteractsWithPivotTable {
         switch (strtolower($type)) {
             case 'int':
             case 'integer':
-                return $value;
+                return parseInt($value);
             case 'real':
             case 'float':
             case 'double':

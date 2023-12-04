@@ -245,16 +245,18 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
         return this.orderBy(this.qualifyPivotColumn($column), $direction);
     }
 
-    findOrNew($id, $columns = ['*']) {
-        if (is_null($instance = this.find($id, $columns))) {
-            $instance = this.$related.newInstance();
+    async findOrNew($id, $columns = ['*']) {
+        let $instance = await this.find($id, $columns)
+        if (is_null($instance)) {
+            $instance = this.$related.newInstance({});
         }
 
         return $instance;
     }
 
-    firstOrNew($attributes) {
-        if (is_null($instance = this.where($attributes).first())) {
+    async firstOrNew($attributes = {}) {
+        let $instance = await this.where($attributes).first();
+        if (is_null($instance)) {
             $instance = this.$related.newInstance($attributes);
         }
 
@@ -262,7 +264,8 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
     }
 
     async firstOrCreate($attributes, $joining = [], $touch = true) {
-        if (is_null($instance = this.where($attributes).first())) {
+        let $instance = await this.where($attributes).first()
+        if (is_null($instance)) {
             $instance = await this.create($attributes, $joining, $touch);
         }
 
@@ -270,7 +273,8 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
     }
 
     async updateOrCreate($attributes, $values = [], $joining = [], $touch = true) {
-        if (is_null($instance = this.where($attributes).first())) {
+        let $instance = await this.where($attributes).first()
+        if (is_null($instance)) {
             return this.create($values, $joining, $touch);
         }
 
@@ -338,9 +342,9 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
         throw (new ModelNotFoundException).setModel(get_class(this.$related));
     }
 
-    getResults() {
+    async getResults() {
         return !is_null(this.$parent[this.$parentKey]) ?
-            this.get() :
+            await this.get() :
             this.$related.newCollection();
     }
 
@@ -362,7 +366,7 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
 
         }
 
-        return this.$related.newCollection($models);
+        return $models;
     }
 
     shouldSelect($columns = ['*']) {
@@ -536,8 +540,8 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
         return this.newPivotQuery().pluck(this.$relatedPivotKey);
     }
 
-    save($model, $pivotAttributes = [], $touch = true) {
-        $model.save({ 'touch': false });
+    async save($model, $pivotAttributes = [], $touch = true) {
+        await $model.save({ 'touch': false });
 
         this.attach($model, $pivotAttributes, $touch);
 
