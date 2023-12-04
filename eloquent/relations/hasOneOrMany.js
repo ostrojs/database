@@ -16,9 +16,9 @@ class HasOneOrMany extends Relation {
     }
 
     make($attributes = {}) {
-        return tap(this.$related.newInstance($attributes), function ($instance) {
-            this.setForeignAttributesForCreate($instance);
-        });
+        const $instance = this.$related.newInstance();
+        $instance.fill($attributes);
+        this.setForeignAttributesForCreate($instance);
     }
 
     makeMany($records) {
@@ -106,7 +106,8 @@ class HasOneOrMany extends Relation {
     async firstOrNew($attributes = {}, $values = {}) {
         let $instance = await this.where($attributes).first()
         if (is_null($instance)) {
-            $instance = this.$related.newInstance({ ...$attributes, ...$values });
+            $instance = this.$related.newInstance();
+            $instance.fill({ ...$attributes, ...$values });
 
             this.setForeignAttributesForCreate($instance);
         }
@@ -145,11 +146,10 @@ class HasOneOrMany extends Relation {
     }
 
     create($attributes = {}) {
-        return tap(this.$related.newInstance($attributes), function ($instance) {
-            this.setForeignAttributesForCreate($instance);
-
-            $instance.save();
-        });
+        const $instance = this.$related.newInstance();
+        $instance.fill($attributes);
+        this.setForeignAttributesForCreate($instance);
+        $instance.save();
     }
 
     createMany($records) {
