@@ -75,7 +75,7 @@ class HasOneOrMany extends Relation {
 
     getRelationValue($dictionary, $key, $type) {
         let $value = $dictionary[$key]
-        return $type === 'one' ? $value[0] || null : this.$related.newCollection($value);
+        return $type === 'one' ? ($value[0] || null) : this.$related.newCollection($value);
     }
 
     buildDictionary($results) {
@@ -93,7 +93,7 @@ class HasOneOrMany extends Relation {
     }
 
     async findOrNew($id, $columns = ['*']) {
-        let $instance = await this.find($id, $columns)
+        let $instance = await this.find($id, $columns);
         if (is_null($instance)) {
             $instance = this.$related.newInstance();
 
@@ -104,7 +104,7 @@ class HasOneOrMany extends Relation {
     }
 
     async firstOrNew($attributes = {}, $values = {}) {
-        let $instance = await this.where($attributes).first()
+        let $instance = await this.where($attributes).first();
         if (is_null($instance)) {
             $instance = this.$related.newInstance();
             $instance.fill({ ...$attributes, ...$values });
@@ -115,31 +115,32 @@ class HasOneOrMany extends Relation {
         return $instance;
     }
 
-    firstOrCreate($attributes = {}, $values = {}) {
-        if (is_null($instance = this.where($attributes).first())) {
-            $instance = this.create({ ...$attributes, ...$values });
+    async firstOrCreate($attributes = {}, $values = {}) {
+        const $instance = await this.where($attributes).first();
+        if (is_null($instance)) {
+            $instance = await this.create({ ...$attributes, ...$values });
         }
 
         return $instance;
     }
 
-    updateOrCreate($attributes, $values = {}) {
-        return tap(this.firstOrNew($attributes), function ($instance) {
-            $instance.fill($values);
+    async updateOrCreate($attributes, $values = {}) {
+        const $instance = await this.firstOrNew($attributes)
 
-            $instance.save();
-        });
+        $instance.fill($values);
+
+        await $instance.save();
     }
 
-    save($model) {
+    async save($model) {
         this.setForeignAttributesForCreate($model);
 
-        return $model.save() ? $model : false;
+        return await $model.save() ? $model : false;
     }
 
-    saveMany($models) {
+    async saveMany($models) {
         for (let $model in $models) {
-            this.save($model);
+            await this.save($model);
         }
 
         return $models;
@@ -149,13 +150,13 @@ class HasOneOrMany extends Relation {
         const $instance = this.$related.newInstance();
         $instance.fill($attributes);
         this.setForeignAttributesForCreate($instance);
-        $instance.save();
+        return $instance.save();
     }
 
     createMany($records) {
         let $instances = this.$related.newCollection();
 
-        for (let $record in $records) {
+        for (let $record of $records) {
             $instances.push(this.create($record));
         }
         return $instances;
