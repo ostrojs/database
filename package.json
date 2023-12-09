@@ -9,7 +9,7 @@
   "dependencies": {
     "@ostro/contracts": "^1.0.2",
     "@ostro/support": "^1.0.12",
-    "@ostro/pagination": "^1.0.0",
+    "@ostro/pagination": "^1.0.3",
     "fs-extra": "^8.1.0",
     "knex": "^2.3.0",
     "lodash.get": "^4.4.2"
