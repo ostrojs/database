@@ -443,7 +443,7 @@ class Builder {
 	}
 
 	forPage($page, $perPage) {
-		$page = $page > 1 ? ($page * $perPage) - 1 : $page;
+		$page = ($page - 1) * $perPage
 		return this.offset($page).limit($perPage)
 	}
 
