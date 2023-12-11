@@ -442,7 +442,7 @@ class Builder {
 		return Boolean(await this.count());
 	}
 
-	forPage($page, $perPage) {
+	forPage($page = 1, $perPage) {
 		$page = ($page - 1) * $perPage
 		return this.offset($page).limit($perPage)
 	}
@@ -458,7 +458,7 @@ class Builder {
 
 	async paginate($perPage = 15, $pageName = 'page', $page = null, $total = null) {
 
-		$page = parseInt($page || this.$request.input($pageName));
+		$page = parseInt($page || this.$request.input($pageName, 1));
 		$total = $total ?? await this.clone().count();
 		$perPage = typeof $perPage == 'function?' ? $perPage($total) : $perPage;
 		const $results = $total ? await this.forPage($page, $perPage).get() : new Collection([]);
