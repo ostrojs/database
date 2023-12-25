@@ -1,7 +1,7 @@
 const { Macroable } = require('@ostro/support/macro')
 const Query = require('../query/builder')
 const MethodNotAvailable = require('@ostro/support/exceptions/methodNotAvailable')
-const DateTime = require('@ostro/support/facades/date')
+const DateTime = require('@ostro/support/dateTime')
 const GuardsAttributes = require('./concern/guardsAttributes')
 const HasRelationships = require('./concern/hasRelationships')
 const HidesAttributes = require('./concern/hidesAttributes')
@@ -143,8 +143,8 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 	addTimestampsToInsertValues(datas) {
 		if (this.$timestamps == true) {
-			let datetime = DateTime.now()
-			datas = !Array.isArray(datas) ? [datas] : datas
+			let datetime = DateTime.now().toString();
+			datas = !Array.isArray(datas) ? [datas] : datas;
 			for (var i = 0; i < datas.length; i++) {
 				datas[i][this.CREATED_AT] = datetime
 				datas[i][this.UPDATED_AT] = datetime
