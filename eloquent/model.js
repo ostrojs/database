@@ -11,6 +11,7 @@ const HasTimestamps = require('./concern/hasTimestamps')
 const BelongsToMany = require('./relations/belongsToMany')
 const Relation = require('./relations/relation')
 const RelationNotFoundException = require('./relationNotFoundException')
+const ModelNotFoundException = require('./modelNotFoundException')
 const kResolver = Symbol('resolver')
 const kQuery = Symbol('query')
 const kEagerLoad = Symbol('eagerLoad')
@@ -759,9 +760,9 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 
 		if (is_array($id)) {
-			if (count($result) !== count($id.unique())) {
+			if (!$result || count($result) !== count($id.unique())) {
 				throw (new ModelNotFoundException).setModel(
-					get_class(this.getModel()), $id.difference($result.modelKeys())
+					get_class(this.getModel()), $id.difference($result && $result.modelKeys())
 				);
 			}
 
@@ -770,7 +771,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 		if (is_null($result)) {
 			throw (new ModelNotFoundException).setModel(
-				get_class(this.getModel()), $id
+				get_class(this.getModel()), [$id]
 			);
 		}
 
