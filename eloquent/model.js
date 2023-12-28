@@ -760,9 +760,9 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 
 		if (is_array($id)) {
-			if (count($result) !== count($id.unique())) {
+			if (!$result || count($result) !== count($id.unique())) {
 				throw (new ModelNotFoundException).setModel(
-					get_class(this.getModel()), $id.difference($result.modelKeys())
+					get_class(this.getModel()), $id.difference($result && $result.modelKeys())
 				);
 			}
 
