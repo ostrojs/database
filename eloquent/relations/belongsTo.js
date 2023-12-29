@@ -122,7 +122,7 @@ class BelongsTo extends implement(Relation, SupportsDefaultModels) {
     }
 
     getRelationExistenceQuery($query, $parentQuery, $columns = ['*']) {
-        if ($parentQuery.getQuery().from == $query.getQuery().from) {
+        if ($parentQuery.getTable() == $query.getTable()) {
             return this.getRelationExistenceQueryForSelfRelation($query, $parentQuery, $columns);
         }
 

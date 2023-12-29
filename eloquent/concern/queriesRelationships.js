@@ -1,4 +1,6 @@
-const Relation = require('../relations/relation')
+const Relation = require('../relations/relation');
+const RelationNotFoundException = require('../relationNotFoundException');
+const knex = require('knex');
 class QueriesRelationships {
 
     has($relation, $operator = '>=', $count = 1, $boolean = 'and', $callback) {
@@ -104,83 +106,88 @@ class QueriesRelationships {
         return $belongsTo;
     }
 
-    withAggregate($relations, $column) {
-        let $callback = Array.from(arguments).find(arg => typeof arg == 'function')
+    withAggregate($relations, $column, $function = null) {
 
         if (empty($relations)) {
             return this;
         }
+        let selftColumns = this.getQuery()._statements.filter(statement => statement.grouping === 'columns')
+            .flatMap(statement => statement.value);
+        if (is_null(selftColumns)) {
 
-        if (is_null(this.$query.columns)) {
-            this.$query.select([this.$query.from + '.*']);
+            this.select(this.getTable() + '.*');
         }
 
         $relations = is_array($relations) ? $relations : [$relations];
+        const parsedRelations = this.parseWithRelations($relations);
 
-        for (let { $name, $constraints } in this.parseWithRelations($relations)) {
-
+        for (let $name in parsedRelations) {
+            const $constraints = parsedRelations[$name];
             let $segments = $name.split(' ');
-
-            unset($alias);
-
+            let $alias, $expression, $hashedColumn, $wrappedColumn;
             if (count($segments) === 3 && String.lower($segments[1]) === 'as') {
-                [$name, $alias] = [$segments[0], $segments[2]];
+                $name = $segments[0];
+                $alias = $segments[2];
             }
 
-            $relation = this.getRelationWithoutConstraints($name);
+            let $relation = this.getRelationWithoutConstraints($name);
 
-            if ($callback) {
-                $hashedColumn = this.getQuery().from === $relation.getQuery().getQuery().from ?
-                    "{$relation.getRelationCountHash(false)}.$column" :
+            if ($function) {
+                $hashedColumn = this.getTable() === $relation.getTable() ?
+                    `${$relation.getRelationCountHash(false)}.${$column}` :
                     $column;
 
-                $wrappedColumn = this.getQuery().getGrammar().wrap(
-                    $column === '*' ? $column : $relation.getRelated().qualifyColumn($hashedColumn)
-                );
+                $wrappedColumn = $column === '*' ? $column : $relation.getRelated().qualifyColumn($hashedColumn);
 
-                $expression = $callback === 'exists' ? $wrappedColumn : sprintf('%s(%s)', $callback, $wrappedColumn);
+
+                $expression = $function === 'exists' ? $wrappedColumn : sprintf('%s(%s)', $function, $wrappedColumn);
             } else {
                 $expression = $column;
             }
 
-            $query = $relation.getRelationExistenceQuery(
-                $relation.getRelated().newQuery(), this, new Expression($expression)
-            ).setBindings([], 'select');
+            let $query = $relation.getRelationExistenceQuery(
+                $relation.getRelated().newQuery(), this, this.raw($expression)
+            );
 
             $query.callScope($constraints);
 
             $query = $query.mergeConstraintsFrom($relation.getQuery()).toBase();
 
-            $query.orders = null;
-            $query.setBindings([], 'order');
-
-            if (count($query.columns) > 1) {
-                $query.columns = [$query.columns[0]];
-                $query.bindings['select'] = [];
+            $query.clearOrder();
+            let columns = $query._statements.filter(statement => statement.grouping === 'columns')
+                .flatMap(statement => statement.value);
+            if (count(columns) > 1) {
+                $query.clearSelect();
+                $query.select(columns[0]);
             }
 
             $alias = $alias || String.snake(
-                preg_replace('/[^[:alnum:][:space:]_]/u', '', "$name $callback $column")
+                $name + $function + $column.replace('/[^[:alnum:][:space:]_]/u', '')
             );
 
-            if ($callback === 'exists') {
-                this.selectRaw(
-                    sprintf('exists(%s) as %s', $query.toSql(), this.getQuery().grammar.wrap($alias)),
-                    $query.getBindings()
-                ).withCasts([$alias => 'bool']);
+            let existingColumns = this.getQuery()._statements
+                .filter(statement => statement.grouping === 'columns')
+                .flatMap(statement => statement.value);
+            existingColumns = existingColumns.length ? existingColumns : ['*']
+            if ($function === 'exists') {
+                this.select(this.newQuery().raw(
+                    sprintf('exists(%s) as %s', $query.toSQL().sql, $alias),
+                )
+                );
             } else {
-                this.selectSub(
-                    $callback ? $query : $query.limit(1),
-                    $alias
+                $query = $function ? $query : $query.limit(1);
+                this.select(
+                    $query.as($alias)
                 );
             }
+            this.select(existingColumns)
         }
 
         return this;
     }
 
-    withCount($relations, $callback) {
-        return this.withAggregate(Array.isArray($relations) ? $relations : arguments, '*', 'count', $callback);
+    withCount($relations) {
+        return this.withAggregate(Array.isArray($relations) ? $relations : [...arguments], '*', 'count');
     }
 
     withMax($relation, $column) {
@@ -212,7 +219,9 @@ class QueriesRelationships {
     }
 
     mergeConstraintsFrom($from) {
-
+        return this.withoutGlobalScopes(
+            $from.removedScopes()
+        )
     }
 
     addWhereCountQuery($query, $operator = '>=', $count = 1, $boolean = 'and') {
@@ -225,6 +234,9 @@ class QueriesRelationships {
 
     getRelationWithoutConstraints($relation) {
         return Relation.noConstraints(() => {
+            if (typeof this.getModel()[$relation] != 'function') {
+                throw RelationNotFoundException.make(this.getModel(), $relation);
+            }
             return this.getModel()[$relation]();
         });
     }
