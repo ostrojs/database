@@ -59,6 +59,11 @@ class Builder {
 		return this;
 	}
 
+	wrap(){
+		this.getQuery().wrap(...arguments)
+		return this;
+	}
+
 	orWhere() {
 		this.getQuery().orWhere(...arguments)
 		return this;
