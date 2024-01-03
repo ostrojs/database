@@ -944,6 +944,53 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 		return this[kRemovedScopes];
 	}
 
+	callScope($scope, $parameters = []) {
+		$parameters.unshift(this);
+		const $query = this.getQuery();
+		const wheres = $query._statements.filter(s => s.type == 'where');
+		const $originalWhereCount = is_null(wheres)
+			? 0 : count(wheres);
+
+		const $result = $scope(...$parameters) || this;
+		return $result;
+	}
+
+
+	withoutGlobalScopes($scopes = null) {
+		if (!is_array($scopes)) {
+			$scopes = Object.keys(this.scopes);
+		}
+
+		for (const $scope of $scopes) {
+			this.withoutGlobalScope($scope);
+		}
+
+		return this;
+	}
+	withGlobalScope($identifier, $scope) {
+		this.scopes[$identifier] = $scope;
+
+		if (method_exists($scope, 'extend')) {
+			$scope.extend(this);
+		}
+
+		return this;
+	}
+
+	withoutGlobalScope($scope) {
+		if (!is_string($scope)) {
+			$scope = get_class($scope);
+		}
+		delete this[kScopes][$scope];
+
+		this[kRemovedScopes].push($scope);
+
+		return this;
+	}
+	removedScopes() {
+		return this[kRemovedScopes];
+	}
+
 	toBase() {
 		return this.getQuery();
 	}
