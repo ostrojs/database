@@ -721,8 +721,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 	async delete() {
 		if (is_null(this.getKeyName())) {
 			throw new Error('No primary key defined on model.');
-		} else if (!this.$exists) {
-			return;
 		}
 
 		this.touchOwners();
