@@ -721,8 +721,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 	async delete() {
 		if (is_null(this.getKeyName())) {
 			throw new Error('No primary key defined on model.');
-		} else if (!this.$exists) {
-			return;
 		}
 
 		this.touchOwners();
@@ -857,6 +855,93 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 			[this.$primaryKey]: $id
 		}).first()
 
+	}
+	callScope($scope, $parameters = []) {
+		$parameters.unshift(this);
+
+		const $query = this.getQuery();
+
+		// We will keep track of how many wheres are on the query before running the
+		// scope so that we can properly group the added scope constraints in the
+		// query as their own isolated nested where statement and avoid issues.
+		const wheres = $query._statements.filter(s => s.type == 'where');
+		const $originalWhereCount = is_null(wheres)
+			? 0 : count(wheres);
+
+		const $result = $scope(...$parameters) || this;
+
+		// if (count(wheres) > $originalWhereCount) {
+		// this.addNewWheresWithinGroup($query, $originalWhereCount);
+		// }
+
+		return $result;
+	}
+	// addNewWheresWithinGroup($query, $originalWhereCount)
+	// {
+	//     // Here, we totally remove all of the where clauses since we are going to
+	//     // rebuild them as nested queries by slicing the groups of wheres into
+	//     // their own sections. This is to prevent any confusing logic order.
+	//     const $allWheres = $query._statements.filter(s=>s.type == 'where');
+
+	//     $query.clearWhere() ;
+
+	//     this.groupWhereSliceForScope(
+	//         $query, $allWheres.slice( 0, $originalWhereCount)
+	//     );
+
+	//     this.groupWhereSliceForScope(
+	//         $query, $allWheres.slice($originalWhereCount)
+	//     );
+	// }
+	// groupWhereSliceForScope($query, $whereSlice)
+	// {
+	//     const $whereBooleans = (new Collection($whereSlice)).pluck('boolean');
+
+	//     // Here we'll check if the given subset of where clauses contains any "or"
+	//     // booleans and in this case create a nested where expression. That way
+	//     // we don't add any unnecessary nesting thus keeping the query clean.
+	//     // if ($whereBooleans.contains('or')) {
+	//         $query.wheres = this.createNestedWhere(
+	//             $whereSlice, $whereBooleans.first()
+	//         );
+	//     // } else {
+	//         $query.wheres = array_merge($query.wheres, $whereSlice);
+	//     // }
+	// }
+
+	withoutGlobalScopes($scopes = null) {
+		if (!is_array($scopes)) {
+			$scopes = Object.keys(this.scopes);
+		}
+
+		for (const $scope of $scopes) {
+			this.withoutGlobalScope($scope);
+		}
+
+		return this;
+	}
+	withGlobalScope($identifier, $scope) {
+		this.scopes[$identifier] = $scope;
+
+		if (method_exists($scope, 'extend')) {
+			$scope.extend(this);
+		}
+
+		return this;
+	}
+
+	withoutGlobalScope($scope) {
+		if (!is_string($scope)) {
+			$scope = get_class($scope);
+		}
+		delete this[kScopes][$scope];
+
+		this[kRemovedScopes].push($scope);
+
+		return this;
+	}
+	removedScopes() {
+		return this[kRemovedScopes];
 	}
 
 	callScope($scope, $parameters = []) {
