@@ -1,7 +1,6 @@
 const lodash = require('lodash')
 const ConfigurationUrlParser = require('@ostro/support/configurationUrlParser');
 const { Macroable } = require('@ostro/support/macro');
-const lodash = require('lodash');
 class DatabaseManager extends Macroable {
 
     $type = 'database';
