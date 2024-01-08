@@ -18,7 +18,7 @@ class DumpCommand extends Command {
         this.$file = $file
     }
 
-    handle() {
+    async handle() {
         let $database = this.input.getOption('database')
         let $connection = this.$connection.connection($database);
         let $path = this.path($connection)
@@ -40,7 +40,7 @@ class DumpCommand extends Command {
     schemaState($connection) {
         return $connection.getSchemaState()
             .withMigrationTable($connection.getTablePrefix() + config.get('database.migrations', 'migrations'))
-            .handleOutputUsing(function($type, $buffer) {
+            .handleOutputUsing(function ($type, $buffer) {
                 this.output.write($buffer);
             });
     }

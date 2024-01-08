@@ -166,7 +166,7 @@ class Relation extends Macroable.implement(InteractsWithDictionary) {
         }
         return this.$performQueries.push(fn)
     }
-    getPerformQueries(){
+    getPerformQueries() {
         return this.$performQueries
     }
     static morphMap($map = null, $merge = true) {
@@ -197,7 +197,7 @@ class Relation extends Macroable.implement(InteractsWithDictionary) {
     __call($target, $method, $parameters) {
 
         let $fn = this.$query[$method];
-        if(typeof $fn != 'function'){
+        if (typeof $fn != 'function') {
             throw Error(`Property [${$method}] not available on [${this.constructor.name}] class`)
         }
         const $result = this.$query[$method](...$parameters);

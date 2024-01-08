@@ -34,7 +34,7 @@ class MigrationServiceProvider extends ServiceProvider {
     }
 
     registerRepository() {
-        this.$app.singleton('migration.repository', function($app) {
+        this.$app.singleton('migration.repository', function ($app) {
             let $table = $app['config']['database.migrations'];
 
             return new DatabaseMigrationRepository($app['db'], $table);
@@ -42,14 +42,14 @@ class MigrationServiceProvider extends ServiceProvider {
     }
 
     registerMigrator() {
-        this.$app.singleton('migrator', function($app) {
+        this.$app.singleton('migrator', function ($app) {
             let $repository = $app['migration.repository'];
             return new Migrator($repository, $app['db'], $app['files']);
         });
     }
 
     registerCreator() {
-        this.$app.singleton('migration.creator', function($app) {
+        this.$app.singleton('migration.creator', function ($app) {
             return new MigrationCreator($app['files'], $app.basePath('stubs'));
         });
     }
@@ -63,50 +63,50 @@ class MigrationServiceProvider extends ServiceProvider {
     }
 
     registerMigrateCommand() {
-        this.$app.singleton('command.migrate', function($app) {
+        this.$app.singleton('command.migrate', function ($app) {
             return new MigrateCommand($app['migrator'], $app['files']);
         });
     }
 
     registerMigrateFreshCommand() {
-        this.$app.singleton('command.migrate.fresh', function() {
+        this.$app.singleton('command.migrate.fresh', function () {
             return new FreshCommand();
         });
     }
 
     registerMigrateRefreshCommand() {
-        this.$app.singleton('command.migrate.refresh', function() {
+        this.$app.singleton('command.migrate.refresh', function () {
             return new RefreshCommand();
         });
     }
 
     registerMigrateInstallCommand() {
-        this.$app.singleton('command.migrate.install', function($app) {
+        this.$app.singleton('command.migrate.install', function ($app) {
             return new InstallCommand($app['migration.repository']);
         });
     }
 
     registerMigrateMakeCommand() {
-        this.$app.singleton('command.migrate.make', function($app) {
+        this.$app.singleton('command.migrate.make', function ($app) {
 
             return new MigrateMakeCommand($app['migration.creator']);
         });
     }
 
     registerMigrateResetCommand() {
-        this.$app.singleton('command.migrate.reset', function($app) {
+        this.$app.singleton('command.migrate.reset', function ($app) {
             return new ResetCommand($app['migrator']);
         });
     }
 
     registerMigrateRollbackCommand() {
-        this.$app.singleton('command.migrate.rollback', function($app) {
+        this.$app.singleton('command.migrate.rollback', function ($app) {
             return new RollbackCommand($app['migrator']);
         });
     }
 
     registerMigrateStatusCommand() {
-        this.$app.singleton('command.migrate.status', function($app) {
+        this.$app.singleton('command.migrate.status', function ($app) {
             return new StatusCommand($app['migrator']);
         });
     }

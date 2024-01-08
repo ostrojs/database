@@ -94,7 +94,7 @@ class MigrationCreator {
     }
 
     getDatePrefix() {
-        return date('yyyy_mm_dd_hhmmss');
+        return date('yyyy_MM_dd_hhmmss');
     }
 
     stub($stub) {

@@ -15,7 +15,7 @@ class DatabaseQuery extends Command {
     $description = 'database query';
 
     handle() {
-        return this.$resolver.query(this.input.argument('query')).then(res => {
+        return this.$resolver.connection().raw(this.input.argument('query')).then(res => {
             console.log(res)
         })
 

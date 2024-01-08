@@ -40,20 +40,20 @@ class WipeCommand extends Command {
 
     dropAllTables($database) {
         return this.$app.db.connection($database)
-            .schema()
-            .dropAllTables(this.$app.db.connection($database));
+            .getSchemaBuilder()
+            .dropAllTables();
     }
 
     dropAllViews($database) {
         return this.$app.db.connection($database)
-            .schema()
-            .dropAllViews(this.$app.db.connection($database));
+            .getSchemaBuilder()
+            .dropAllViews();
     }
 
     dropAllTypes($database) {
         return this.$app.db.connection($database)
-            .schema()
-            .dropAllTypes(this.$app.db.connection($database));
+            .getSchemaBuilder()
+            .dropAllTypes();
     }
 
 }

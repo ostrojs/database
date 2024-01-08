@@ -66,7 +66,7 @@ class CreateSchema extends BaseCommand {
 
         }
 
-        this.line(`<info>Created Migration:</info> ${$file.replace(this.getMigrationPath(),'').slice(1)}`);
+        this.line(`<info>Created Migration:</info> ${$file.replace(this.getMigrationPath(), '').slice(1)}`);
     }
 
     getMigrationPath() {
