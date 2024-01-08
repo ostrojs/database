@@ -1,6 +1,5 @@
 const Collection = require('@ostro/support/collection')
 const fs = require('fs-extra')
-const Schema = require('../schema')
 const path = require('path');
 
 class Migrator {
@@ -23,7 +22,7 @@ class Migrator {
 
             return this.$repository.getRan().then(async (res) => {
                 let $migrations = await this.pendingMigrations($files, res)
-                return await this.runPending($migrations, $options)
+                return this.runPending($migrations, $options)
             })
 
         })
@@ -52,11 +51,9 @@ class Migrator {
         let $pretend = $options['pretend'] ? $options['pretend'] : false;
 
         let $step = $options['step'] ? $options['step'] : false;
-
-        let $runUpPromise = []
         for (let $file of $migrations) {
-            await this.runUp($file, $batch, $pretend);
 
+            await this.runUp($file, $batch, $pretend);
             if ($step) {
                 $batch++;
             }
@@ -68,7 +65,7 @@ class Migrator {
 
         let $migration = this.resolvePath($file);
 
-        let $name = await this.getMigrationName($file);
+        let $name = this.getMigrationName($file);
 
         if ($pretend) {
             return await this.pretendToRun($migration, 'up');
@@ -179,15 +176,11 @@ class Migrator {
     }
 
     async runMigration($migration, $method) {
-        Schema.connection(this.resolveConnection().getSchemaBuilder())
 
-        let $callback = async function () {
-            if (typeof $migration[$method] == 'function') {
-                await $migration[$method]();
-            }
-        };
+        if (typeof $migration[$method] == 'function') {
+            await $migration[$method]();
+        }
 
-        await $callback();
     }
 
     async pretendToRun($migration, $method) {

@@ -14,7 +14,7 @@ class RollbackCommand extends BaseCommand {
         this.createOption('--pretend', 'Dump the SQL queries that would be run'),
         this.createOption('--step [step]', 'The number of migrations to be reverted'),
     ];
-    
+
     constructor($migrator) {
         super()
 
@@ -31,9 +31,9 @@ class RollbackCommand extends BaseCommand {
             return this.$migrator.setOutput(this.output)
                 .rollback(
                     this.getMigrationPaths(), {
-                        'pretend': this.option('pretend'),
-                        'step': this.option('step'),
-                    }
+                    'pretend': this.option('pretend'),
+                    'step': this.option('step'),
+                }
                 );
 
         })

@@ -3,15 +3,13 @@ const Migration = require('@ostro/database/migration')
 
 class {{ class }} extends Migration {
 
-    async up()
-    {
+    async up() {
         await Schema.table('{{ table }}', function (table) {
             //
         });
     }
 
-    async down()
-    {
+    async down() {
         await Schema.table('{{ table }}', function (table) {
             //
         });

@@ -66,7 +66,7 @@ class CreateMigration extends BaseCommand {
             this.line('<info>Loading stored database schema:</info> ' + $path);
             this.$migrator.deleteRepository();
 
-            $connection.getSchemaState().handleOutputUsing(function($type, $buffer) {
+            $connection.getSchemaState().handleOutputUsing(function ($type, $buffer) {
                 this.output.write($buffer);
             }).load($path);
 

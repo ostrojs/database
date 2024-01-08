@@ -63,7 +63,7 @@ class DatabaseMigrationRepository {
         });
     }
 
-    async repositoryExists() {
+    repositoryExists() {
         let $schema = this.getConnection().getSchemaBuilder();
         return $schema.hasTable(this.$table)
     }

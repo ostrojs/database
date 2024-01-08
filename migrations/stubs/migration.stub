@@ -3,13 +3,11 @@ const Migration = require('@ostro/database/migration')
 
 class {{ class }} extends Migration {
 
-    up()
-    {
+    up() {
         //
     }
 
-    down()
-    {
+    down() {
         //
     }
 }

@@ -12,6 +12,7 @@
     "@ostro/pagination": "^1.0.4",
     "fs-extra": "^8.1.0",
     "knex": "^2.3.0",
+    "lodash": "^4.17.21",
     "lodash.get": "^4.4.2"
   },
   "engines": {

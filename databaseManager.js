@@ -1,54 +1,151 @@
-require('@ostro/support/helpers')
-const knex = require('knex')
-const Manager = require('@ostro/support/manager')
-const InvalidArgumentException = require('@ostro/support/exceptions/invalidArgumentException')
-const DatabaseAdapter = require('./databaseAdapter')
-class DatabaseManager extends Manager {
+const lodash = require('lodash')
+const ConfigurationUrlParser = require('@ostro/support/configurationUrlParser');
+const { Macroable } = require('@ostro/support/macro');
+const lodash = require('lodash');
+class DatabaseManager extends Macroable {
 
     $type = 'database';
+    $connections = {}
+    $extensions = {}
+    constructor($container, $factory) {
+        super()
+        Object.defineProperties(this, {
+            '$reconnector': {
+                value: ($connection) => {
+                    this.reconnect($connection.getName());
+                },
+                writable: true
+            },
+            '$app': {
+                value: $container,
+                writable: true
+            },
+            '$factory': {
+                value: $factory,
+                writable: false
+            }
+        })
+    }
 
     builder($name = null) {
         return this.driver($name)
     }
 
-    connection($driver) {
-        return this.driver($driver)
-    }
+    connection(name = null) {
+        const [database, type] = this.parseConnectionName(name);
+        name = name || database;
 
-    resolve(name) {
-
-        let $config = this.getConfig(name);
-        if (!($config)) {
-            throw new InvalidArgumentException(`Database config  [{${name}}] is not defined.`);
+        if (!this.$connections[name]) {
+            this.$connections[name] = this.configure(
+                this.makeConnection(database),
+                type
+            );
         }
-        return super.resolve(name, $config)
+
+        return this.$connections[name];
     }
 
-    createSqliteDriver($config, $name) {
-        return this.adapt(new (require('./adapter/sqlite'))(knex, 'sqlite3', $config['database'], $config['migrations']), require('./schema/sqliteSchema'), $name, $config);
+    parseConnectionName(name) {
+        name = name || this.getDefaultConnection();
+        return name.endsWith('::read') || name.endsWith('::write')
+            ? name.split('::', 2)
+            : [name, null];
     }
 
-    createMysqlDriver($config, $name) {
-        return this.adapt(new (require('./adapter/mysql'))(knex, 'mysql', $config, $config['migrations']), require('./schema/mysqlSchema'), $name, $config);
+    makeConnection(name) {
+        const config = this.configuration(name);
+
+        if (this.$extensions[name]) {
+            return this.$extensions[name](config, name);
+        }
+
+        const driver = config['driver'];
+
+        if (this.$extensions[driver]) {
+            return this.$extensions[driver](config, name);
+        }
+
+        return this.$factory.make(config, name);
     }
-    createMysql2Driver($config, $name) {
-        return this.adapt(new (require('./adapter/mysql'))(knex, 'mysql2', $config, $config['migrations']), require('./schema/mysqlSchema'), $name, $config);
-    }
-    createPgsqlDriver($config, $name) {
-        return this.adapt(new (require('./adapter/pgsql'))(knex, $config, $config['migrations']), require('./schema/pgsqlSchema'), $name, $config);
+    configuration(name) {
+        name = name || this.getDefaultConnection();
+        const connections = lodash.get(this.$app['config'], 'database.connections');
+
+        if (!connections[name]) {
+            throw new Error(`Database connection [${name}] not configured.`);
+        }
+
+        return new ConfigurationUrlParser().parseConfiguration(connections[name]);
     }
 
-    createOracleDriver($config, $name) {
-        return this.adapt(new (require('./adapter/oracle'))(knex, $config, $config['migrations']), require('./schema/oracleSchema'), $name, $config);
+    configure(connection, type) {
+        connection.setReconnector(this.$reconnector);
+
+        return connection;
     }
 
-    adapt($database, Schema, $name, $config) {
-        Schema = Object.create(Schema)
-        return new DatabaseAdapter($database, Schema, $name, $config);
+    purge($name = null) {
+        $name = $name || this.getDefaultConnection();
+
+        this.disconnect($name);
+
+        delete this.$connections[$name];
     }
 
-    repository($driver) {
-        return this.adapt($driver);
+
+    disconnect($name = null) {
+        $name = $name || this.getDefaultConnection();
+        if (isset(this.$connections[$name])) {
+            this.$connections[$name].disconnect();
+        }
+    }
+
+    reconnect($name = null) {
+        $name = $name || this.getDefaultConnection();
+        this.disconnect($name);
+
+        if (!isset(this.$connections[$name])) {
+            return this.connection($name);
+        }
+
+        return this.refreshConnections($name);
+    }
+
+    usingConnection($name, $callback) {
+        const $previousName = this.getDefaultConnection();
+
+        this.setDefaultConnection($name);
+
+        return tap($callback(), () => {
+            this.setDefaultConnection($previousName);
+        });
+    }
+
+    getDefaultConnection() {
+        return lodash.get(this.$app['config'], 'database.default');
+    }
+
+    setDefaultConnection($name) {
+        lodash.set(this.app['config'], 'database.default', $name);
+    }
+
+    supportedDrivers() {
+        return ['mysql', 'pgsql', 'sqlite', 'sqlsrv', 'oracle'];
+    }
+
+    extend($name, $resolver) {
+        this.$extensions[$name] = $resolver;
+    }
+
+    forgetExtension($name) {
+        delete this.$extensions[$name];
+    }
+    getConnections() {
+        return this.$connections;
+    }
+
+    setReconnector($reconnector) {
+        this.$reconnector = $reconnector;
     }
 
     getPrefix() {
@@ -56,13 +153,16 @@ class DatabaseManager extends Manager {
     }
 
     getConfig(name) {
-        return super.getConfig(`connections.${name}`);
+        return lodash.get(this.$app['config'], `database.connections.${name}`);
     }
 
     registerCommands(dir) {
         if (this.$container.console && typeof this.$container.console.load == 'function' && env('production')) {
             this.$container.console.load(dir);
         }
+    }
+    __call($target, $method, $parameters) {
+        return $target.connection()[$method](...$parameters);
     }
 
 }
