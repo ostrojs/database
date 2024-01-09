@@ -841,7 +841,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 			if (res) {
 				if (this.$timestamps)
-					update[this.UPDATED_AT] = DateTime.now()
+					update[this.UPDATED_AT] = this.freshTimestampString()
 				return res.where(where).update(update);
 			}
 

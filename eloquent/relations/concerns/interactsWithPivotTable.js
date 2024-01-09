@@ -216,7 +216,7 @@ class InteractsWithPivotTable {
     }
 
     addTimestampsToAttachment($record, $exists = false) {
-        let $fresh = this.$parent.freshTimestamp();
+        let $fresh = this.$parent.freshTimestampString();
 
         if (this.$using) {
             const $pivotModel = new this.$using;
