@@ -1,6 +1,6 @@
 {
   "name": "@ostro/database",
-  "version": "1.2.14",
+  "version": "1.3.1",
   "description": "Database module for OstroJS",
   "main": "databaseManager.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@ostro/contracts": "^1.0.2",
-    "@ostro/support": "^1.0.12",
+    "@ostro/support": "^1.2.0",
     "@ostro/pagination": "^1.0.4",
     "fs-extra": "^8.1.0",
     "knex": "^2.3.0",
