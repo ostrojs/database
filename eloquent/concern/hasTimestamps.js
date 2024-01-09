@@ -1,4 +1,4 @@
-const Date = require('@ostro/support/facades/date');
+const DateTime = require('@ostro/support/dateTime')
 
 class HasTimestamps {
 
@@ -15,7 +15,7 @@ class HasTimestamps {
     }
 
     updateTimestamps() {
-        let $time = this.freshTimestamp();
+        let $time = this.freshTimestampString();
 
         let $updatedAtColumn = this.getUpdatedAtColumn();
 
@@ -41,11 +41,15 @@ class HasTimestamps {
     }
 
     freshTimestamp() {
-        return Date.now();
+        return DateTime.now();
     }
 
     freshTimestampString() {
         return this.fromDateTime(this.freshTimestamp());
+    }
+
+    fromDateTime(time) {
+        return time.format(this.$dateFormat);
     }
 
     usesTimestamps() {
