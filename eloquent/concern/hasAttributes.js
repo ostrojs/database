@@ -42,7 +42,7 @@ class HasAttributes {
 
     $dates = [];
 
-    $dateFormat;
+    $dateFormat = 'yyyy-MM-dd HH:mm:ss';
 
     $appends = {};
 
