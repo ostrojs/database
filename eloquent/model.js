@@ -149,7 +149,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 	addTimestampsToInsertValues(datas) {
 		if (this.$timestamps == true) {
-			let datetime = DateTime.now().toString();
+			let datetime = DateTime.now().format(this.$dateFormat);
 			datas = !Array.isArray(datas) ? [datas] : datas;
 			for (var i = 0; i < datas.length; i++) {
 				datas[i][this.CREATED_AT] = datetime
