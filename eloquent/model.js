@@ -721,8 +721,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 	async delete() {
 		if (is_null(this.getKeyName())) {
 			throw new Error('No primary key defined on model.');
-		} else if (!this.$exists) {
-			return;
 		}
 
 		this.touchOwners();
@@ -841,7 +839,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 			if (res) {
 				if (this.$timestamps)
-					update[this.UPDATED_AT] = DateTime.now()
+					update[this.UPDATED_AT] = this.freshTimestampString()
 				return res.where(where).update(update);
 			}
 
