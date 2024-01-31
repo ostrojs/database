@@ -9,7 +9,7 @@ class MysqlConnector {
             version: config.version,
             connection: {
                 socketPath: config.socket,
-                host: config.host,
+                host: config.host[0],
                 port: config.port,
                 user: config.username,
                 database: database,

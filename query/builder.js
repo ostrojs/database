@@ -27,369 +27,369 @@ class Builder {
 	}
 
 	from() {
-		this.$query = this.getQuery().from(...arguments)
+		this.$query = this.getQueryBuilder().from(...arguments)
 		return this;
 	}
 
 	where() {
-		this.getQuery().where(...arguments)
+		this.getQueryBuilder().where(...arguments)
 		return this;
 	}
 
 	whereColumn(column, operator, refColumn) {
-		this.getQuery().whereRaw(column + operator + refColumn)
+		this.getQueryBuilder().whereRaw(column + operator + refColumn)
 		return this;
 	}
 
 	whereNot() {
-		this.getQuery().whereNot(...arguments)
+		this.getQueryBuilder().whereNot(...arguments)
 		return this;
 	}
 
 	whereIn() {
-		this.getQuery().whereIn(...arguments)
+		this.getQueryBuilder().whereIn(...arguments)
 		return this;
 	}
 
 	whereNotIn() {
-		this.getQuery().whereNotIn(...arguments)
+		this.getQueryBuilder().whereNotIn(...arguments)
 		return this;
 	}
 
 	whereNull() {
-		this.getQuery().whereNull(...arguments)
+		this.getQueryBuilder().whereNull(...arguments)
 		return this;
 	}
 
 	whereNotNull() {
-		this.getQuery().whereNotNull(...arguments)
+		this.getQueryBuilder().whereNotNull(...arguments)
 		return this;
 	}
 
 	whereExists() {
-		this.getQuery().whereExists(...arguments)
+		this.getQueryBuilder().whereExists(...arguments)
 		return this;
 	}
 
 	whereNotExists() {
-		this.getQuery().whereNotExists(...arguments)
+		this.getQueryBuilder().whereNotExists(...arguments)
 		return this;
 	}
 
 	whereBetween() {
-		this.getQuery().whereBetween(...arguments)
+		this.getQueryBuilder().whereBetween(...arguments)
 		return this;
 	}
 
 	whereNotBetween() {
-		this.getQuery().whereNotBetween(...arguments)
+		this.getQueryBuilder().whereNotBetween(...arguments)
 		return this;
 	}
 
 	whereRaw() {
-		this.getQuery().whereRaw(...arguments)
+		this.getQueryBuilder().whereRaw(...arguments)
 		return this;
 	}
 
 	wrap() {
-		this.getQuery().wrap(...arguments)
+		this.getQueryBuilder().wrap(...arguments)
 		return this;
 	}
 
 	orWhere() {
-		this.getQuery().orWhere(...arguments)
+		this.getQueryBuilder().orWhere(...arguments)
 		return this;
 	}
 
 	orWhereNot() {
-		this.getQuery().orWhereNot(...arguments)
+		this.getQueryBuilder().orWhereNot(...arguments)
 		return this;
 	}
 
 	orWhereIn() {
-		this.getQuery().orWhereIn(...arguments)
+		this.getQueryBuilder().orWhereIn(...arguments)
 		return this;
 	}
 
 	orWhereNotIn() {
-		this.getQuery().orWhereNotIn(...arguments)
+		this.getQueryBuilder().orWhereNotIn(...arguments)
 		return this;
 	}
 
 	orWhereNull() {
-		this.getQuery().orWhereNull(...arguments)
+		this.getQueryBuilder().orWhereNull(...arguments)
 		return this;
 	}
 
 	orWhereExists() {
-		this.getQuery().orWhereExists(...arguments)
+		this.getQueryBuilder().orWhereExists(...arguments)
 		return this;
 	}
 
 	orWhereNotExists() {
-		this.getQuery().orWhereNotExists(...arguments)
+		this.getQueryBuilder().orWhereNotExists(...arguments)
 		return this;
 	}
 
 	orWhereBetween() {
-		this.getQuery().orWhereBetween(...arguments)
+		this.getQueryBuilder().orWhereBetween(...arguments)
 		return this;
 	}
 
 	orWhereNotBetween() {
-		this.getQuery().orWhereNotBetween(...arguments)
+		this.getQueryBuilder().orWhereNotBetween(...arguments)
 		return this;
 	}
 
 	innerJoin() {
-		this.getQuery().innerJoin(...arguments)
+		this.getQueryBuilder().innerJoin(...arguments)
 		return this;
 	}
 
 	leftJoin() {
-		this.getQuery().leftJoin(...arguments)
+		this.getQueryBuilder().leftJoin(...arguments)
 		return this;
 	}
 
 	leftOuterJoin() {
-		this.getQuery().leftOuterJoin(...arguments)
+		this.getQueryBuilder().leftOuterJoin(...arguments)
 		return this;
 	}
 
 	rightJoin() {
-		this.getQuery().rightJoin(...arguments)
+		this.getQueryBuilder().rightJoin(...arguments)
 		return this;
 	}
 
 	rightOuterJoin() {
-		this.getQuery().rightOuterJoin(...arguments)
+		this.getQueryBuilder().rightOuterJoin(...arguments)
 		return this;
 	}
 
 	fullOuterJoin() {
-		this.getQuery().fullOuterJoin(...arguments)
+		this.getQueryBuilder().fullOuterJoin(...arguments)
 		return this;
 	}
 
 	crossJoin() {
-		this.getQuery().crossJoin(...arguments)
+		this.getQueryBuilder().crossJoin(...arguments)
 		return this;
 	}
 
 	join() {
-		this.getQuery().join(...arguments)
+		this.getQueryBuilder().join(...arguments)
 		return this;
 	}
 
 	joinRaw() {
-		this.getQuery().joinRaw(...arguments)
+		this.getQueryBuilder().joinRaw(...arguments)
 		return this;
 	}
 
 	onIn() {
-		this.getQuery().onIn(...arguments)
+		this.getQueryBuilder().onIn(...arguments)
 		return this;
 	}
 
 	onNotIn() {
-		this.getQuery().onNotIn(...arguments)
+		this.getQueryBuilder().onNotIn(...arguments)
 		return this;
 	}
 
 	onNull() {
-		this.getQuery().onNull(...arguments)
+		this.getQueryBuilder().onNull(...arguments)
 		return this;
 	}
 
 	onNotNull() {
-		this.getQuery().onNotNull(...arguments)
+		this.getQueryBuilder().onNotNull(...arguments)
 		return this;
 	}
 
 	onExists() {
-		this.getQuery().onExists(...arguments)
+		this.getQueryBuilder().onExists(...arguments)
 		return this;
 	}
 
 	onNotExists() {
-		this.getQuery().onNotExists(...arguments)
+		this.getQueryBuilder().onNotExists(...arguments)
 		return this;
 	}
 
 	onBetween() {
-		this.getQuery().onBetween(...arguments)
+		this.getQueryBuilder().onBetween(...arguments)
 		return this;
 	}
 
 	onNotBetween() {
-		this.getQuery().onNotBetween(...arguments)
+		this.getQueryBuilder().onNotBetween(...arguments)
 		return this;
 	}
 
 	having() {
-		this.getQuery().having(...arguments)
+		this.getQueryBuilder().having(...arguments)
 		return this;
 	}
 
 	havingIn() {
-		this.getQuery().havingIn(...arguments)
+		this.getQueryBuilder().havingIn(...arguments)
 		return this;
 	}
 
 	havingNotIn() {
-		this.getQuery().havingNotIn(...arguments)
+		this.getQueryBuilder().havingNotIn(...arguments)
 		return this;
 	}
 
 	havingNull() {
-		this.getQuery().havingNull(...arguments)
+		this.getQueryBuilder().havingNull(...arguments)
 		return this;
 	}
 
 	havingNotNull() {
-		this.getQuery().havingNotNull(...arguments)
+		this.getQueryBuilder().havingNotNull(...arguments)
 		return this;
 	}
 
 	havingExists() {
-		this.getQuery().havingExists(...arguments)
+		this.getQueryBuilder().havingExists(...arguments)
 		return this;
 	}
 
 	havingNotExists() {
-		this.getQuery().havingNotExists(...arguments)
+		this.getQueryBuilder().havingNotExists(...arguments)
 		return this;
 	}
 
 	havingBetween() {
-		this.getQuery().havingBetween(...arguments)
+		this.getQueryBuilder().havingBetween(...arguments)
 		return this;
 	}
 
 	havingNotBetween() {
-		this.getQuery().havingNotBetween(...arguments)
+		this.getQueryBuilder().havingNotBetween(...arguments)
 		return this;
 	}
 
 	havingRaw() {
-		this.getQuery().havingRaw(...arguments)
+		this.getQueryBuilder().havingRaw(...arguments)
 		return this;
 	}
 
 	clearSelect() {
-		this.getQuery().clearSelect(...arguments)
+		this.getQueryBuilder().clearSelect(...arguments)
 		return this;
 	}
 
 	clearWhere() {
-		this.getQuery().clearWhere(...arguments)
+		this.getQueryBuilder().clearWhere(...arguments)
 		return this;
 	}
 
 	clearOrder() {
-		this.getQuery().clearOrder(...arguments)
+		this.getQueryBuilder().clearOrder(...arguments)
 		return this;
 	}
 
 	clearHaving() {
-		this.getQuery().clearHaving(...arguments)
+		this.getQueryBuilder().clearHaving(...arguments)
 		return this;
 	}
 
 	clearCounters() {
-		this.getQuery().clearCounters(...arguments)
+		this.getQueryBuilder().clearCounters(...arguments)
 		return this;
 	}
 
 	distinct() {
-		this.getQuery().distinct(...arguments)
+		this.getQueryBuilder().distinct(...arguments)
 		return this;
 	}
 
 	groupBy() {
-		this.getQuery().groupBy(...arguments)
+		this.getQueryBuilder().groupBy(...arguments)
 		return this;
 	}
 
 	groupByRaw() {
-		this.getQuery().groupByRaw(...arguments)
+		this.getQueryBuilder().groupByRaw(...arguments)
 		return this;
 	}
 
 	orderBy() {
-		this.getQuery().orderBy(...arguments)
+		this.getQueryBuilder().orderBy(...arguments)
 		return this;
 	}
 
 	orderByRaw() {
-		this.getQuery().orderByRaw(...arguments)
+		this.getQueryBuilder().orderByRaw(...arguments)
 		return this;
 	}
 
 	offset() {
-		this.getQuery().offset(...arguments)
+		this.getQueryBuilder().offset(...arguments)
 		return this;
 	}
 
 	limit() {
-		this.getQuery().limit(...arguments)
+		this.getQueryBuilder().limit(...arguments)
 		return this;
 	}
 
 	union() {
-		this.getQuery().union(...arguments)
+		this.getQueryBuilder().union(...arguments)
 		return this;
 	}
 
 	unionAll() {
-		this.getQuery().unionAll(...arguments)
+		this.getQueryBuilder().unionAll(...arguments)
 		return this;
 	}
 
 	insert() {
-		return this.getQuery().insert(...arguments)
+		return this.getQueryBuilder().insert(...arguments)
 	}
 
 	batchInsert() {
-		this.getQuery().batchInsert(...arguments)
+		this.getQueryBuilder().batchInsert(...arguments)
 		return this;
 	}
 
 	returning() {
-		this.getQuery().havingBetween(...arguments)
+		this.getQueryBuilder().havingBetween(...arguments)
 		return this;
 	}
 
 	update() {
-		return this.getQuery().update(...arguments)
+		return this.getQueryBuilder().update(...arguments)
 	}
 
 	delete() {
-		return this.getQuery().delete(...arguments)
+		return this.getQueryBuilder().delete(...arguments)
 	}
 
 	transacting() {
-		this.getQuery().transacting(...arguments)
+		this.getQueryBuilder().transacting(...arguments)
 		return this;
 	}
 
 	forUpdate() {
-		this.getQuery().forUpdate(...arguments)
+		this.getQueryBuilder().forUpdate(...arguments)
 		return this;
 	}
 
 	forShare() {
-		this.getQuery().forShare(...arguments)
+		this.getQueryBuilder().forShare(...arguments)
 		return this;
 	}
 
 	skipLocked() {
-		this.getQuery().skipLocked(...arguments)
+		this.getQueryBuilder().skipLocked(...arguments)
 		return this;
 	}
 
 	noWait() {
-		return this.getQuery().noWait(...arguments)
+		return this.getQueryBuilder().noWait(...arguments)
 	}
 
 	async count(name) {
@@ -397,41 +397,41 @@ class Builder {
 		if (!name.includes('as')) {
 			name = name + ' as countResult';
 		}
-		const query = this.getQuery();
+		const query = this.getQueryBuilder();
 		query.clearOrder();
 		const data = await query.count(name);
 		name = name.split('as ');
 		name = trim(last(name), ' ');
-		return data[0][name];
+		return Array.isArray(data) && data[0][name];
 
 	}
 
 	min() {
-		return this.getQuery().min(...arguments)
+		return this.getQueryBuilder().min(...arguments)
 	}
 
 	max(max) {
-		return this.getQuery().max(max).first()
+		return this.getQueryBuilder().max(max).first()
 	}
 
 	sum() {
-		return this.getQuery().sum(...arguments)
+		return this.getQueryBuilder().sum(...arguments)
 	}
 
 	avg() {
-		return this.getQuery().avg(...arguments)
+		return this.getQueryBuilder().avg(...arguments)
 	}
 
 	increment() {
-		return this.getQuery().increment(...arguments)
+		return this.getQueryBuilder().increment(...arguments)
 	}
 
 	decrement() {
-		return this.getQuery().decrement(...arguments)
+		return this.getQueryBuilder().decrement(...arguments)
 	}
 
 	truncate() {
-		return this.getQuery().truncate(...arguments)
+		return this.getQueryBuilder().truncate(...arguments)
 	}
 
 	async pluck(key, value) {
@@ -439,52 +439,56 @@ class Builder {
 			let datas = await this.select(key, value).collection()
 			return datas.pluck(key, value)
 		}
-		return this.getQuery().pluck(key)
+		return this.getQueryBuilder().pluck(key)
 	}
 
 	clone() {
-		return this.getQuery().clone(...arguments)
+		return this.getQueryBuilder().clone(...arguments)
 	}
 
 	modify() {
-		return this.getQuery().modify(...arguments)
+		return this.getQueryBuilder().modify(...arguments)
 	}
 
 	columnInfo() {
-		return this.getQuery().columnInfo(...arguments)
+		return this.getQueryBuilder().columnInfo(...arguments)
 	}
 
 	queryContext() {
-		this.getQuery().queryContext(...arguments)
+		this.getQueryBuilder().queryContext(...arguments)
 		return this
 	}
 
 	query() {
-		this.getQuery().query(...arguments)
+		this.getQueryBuilder().query(...arguments)
 		return this
 	}
 
 	select() {
-		this.getQuery().select(...arguments)
+		this.getQueryBuilder().select(...arguments)
 		return this
 	}
 
 	as() {
-		this.getQuery().as(...arguments)
+		this.getQueryBuilder().as(...arguments)
 		return this
 	}
 
 	column() {
-		this.getQuery().column(...arguments)
+		this.getQueryBuilder().column(...arguments)
 		return this
 	}
 
 	select() {
-		this.getQuery().select(...arguments)
+		this.getQueryBuilder().select(...arguments)
 		return this
 	}
 
-	getQuery() {
+	getQueryBuilder() {
+		return this.$query;
+	}
+
+	getQueryBuilder() {
 		return this.$query
 	}
 
@@ -497,7 +501,7 @@ class Builder {
 	}
 
 	toSQL() {
-		return this.getQuery().toSQL()
+		return this.getQueryBuilder().toSQL()
 	}
 
 	toSql() {
@@ -528,7 +532,7 @@ class Builder {
 	}
 
 	latest() {
-		this.getQuery().orderBy('id', 'desc');
+		this.getQueryBuilder().orderBy('id', 'desc');
 		return this;
 	}
 
@@ -540,11 +544,11 @@ class Builder {
 		if (select[0] instanceof Array) {
 			select = select[0]
 		}
-		return this.getQuery().first(select)
+		return this.getQueryBuilder().first(select)
 	}
 
 	get() {
-		return this.getQuery()
+		return this.getQueryBuilder()
 	}
 
 	async exists() {
@@ -557,7 +561,7 @@ class Builder {
 	}
 
 	collection() {
-		return this.getQuery().then(res => new Collection(res))
+		return this.getQueryBuilder().then(res => new Collection(res))
 	}
 
 	request(request) {
