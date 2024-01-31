@@ -488,7 +488,7 @@ class Builder {
 		return this.$query;
 	}
 
-	getQueryBuilder() {
+	getQuery() {
 		return this.$query
 	}
 
