@@ -284,12 +284,12 @@ class HasAttributes {
         return $value;
     }
 
-    getAttributeFromArray($key) {
-        return this.getAttributes()[$key] || null;
+    getAttributeFromObject($key) {
+        return this.getAttributes()[$key];
     }
 
     getAttributeValue($key) {
-        return this.transformModelValue($key, this.getAttributeFromArray($key));
+        return this.transformModelValue($key, this.getAttributeFromObject($key));
     }
 
     getMutatedAttributes() {
