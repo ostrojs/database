@@ -1,6 +1,5 @@
 const BaseCollection = require('@ostro/support/collection')
 const ModelInterface = require('@ostro/contracts/database/eloquent/model')
-
 class Collection extends BaseCollection {
 
     toArray() {
@@ -21,7 +20,11 @@ class Collection extends BaseCollection {
     toJSON() {
         let $value = this.all();
         if (Array.isArray($value)) {
-            throw Error(`Use toArray insted of toJson / toJSON  method.`)
+            for (let i in $value) {
+                if ($value[i] instanceof ModelInterface) {
+                    $value[i] = $value[i].toJson()
+                }
+            }
         }
         return $value instanceof ModelInterface ? $value.toJson() : $value
     }

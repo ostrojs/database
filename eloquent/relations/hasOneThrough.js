@@ -2,9 +2,8 @@ const HasManyThrough = require('./hasManyThrough')
 const SupportsDefaultModels = require('./concerns/supportsDefaultModels')
 const InteractsWithDictionary = require('./concerns/interactsWithDictionary')
 class HasOneThrough extends implement(HasManyThrough, SupportsDefaultModels, InteractsWithDictionary) {
-
     getResults() {
-        return this.first() || this.getDefaultFor(this.farParent);
+        return this.$query.first() || this.getDefaultFor(this.$farParent);
     }
 
     initRelation($models, $relation) {
@@ -22,8 +21,9 @@ class HasOneThrough extends implement(HasManyThrough, SupportsDefaultModels, Int
             let $key = this.getDictionaryKey($model.getAttribute(this.$localKey))
             if (isset($dictionary[$key])) {
                 let $value = $dictionary[$key];
+                $value =  Array.isArray($value) && $value.length > 0 ?  $value[0] : null;
                 $model.setRelation(
-                    $relation, $value
+                    $relation,  $value
                 );
             }
         }
