@@ -555,8 +555,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 				await this.performUpdate($query) : true;
 		} else {
 			$saved = await this.performInsert($query);
-			const $models = await this.eagerLoadRelations(collect([this]));
-
 			let $connection = $query.getConnection()
 			if (!this.getConnectionName() && $connection) {
 				this.setConnection($connection.getName());
