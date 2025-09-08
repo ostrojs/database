@@ -152,6 +152,14 @@ class Relation extends Macroable.implement(InteractsWithDictionary) {
         return this.$related.getUpdatedAtColumn();
     }
 
+    whereInEager($whereIn, $key, $modelKeys, $query = null) {
+        ($query ?? this.$query)[$whereIn]($key, $modelKeys);
+
+        if ($modelKeys.length === 0) {
+            this.$eagerKeysWereEmpty = true;
+        }
+    }
+
     whereInMethod($model, $key) {
         if ($model.getKeyName() === $key.split('.').pop() &&
             ['int', 'integer'].includes($model.getKeyType())) {

@@ -477,7 +477,7 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
     }
 
     prepareQueryBuilder() {
-        return this.$query.addSelect(this.shouldSelect());
+        return this.$query.select(this.shouldSelect());
     }
 
     hydratePivotRelation($models) {
@@ -544,7 +544,7 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
     async save($model, $pivotAttributes = [], $touch = true) {
         await $model.save({ 'touch': false });
 
-        this.attach($model, $pivotAttributes, $touch);
+        await this.attach($model, $pivotAttributes, $touch);
 
         return $model;
     }
@@ -561,7 +561,7 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
     }
 
     async create($attributes = [], $joining = [], $touch = true) {
-        $instance = this.$related.newInstance($attributes);
+        const $instance = this.$related.newInstance($attributes);
         $instance.fill($attributes);
 
         $instance.save({ 'touch': false });
@@ -572,11 +572,16 @@ class BelongsToMany extends implement(Relation, InteractsWithPivotTable) {
     }
 
     async createMany($records, $joinings = []) {
-        $instances = [];
+        const $instances = [];
 
         for (let $key in $records) {
             let $record = $records[$key]
-            $instances.push(await this.create($record, ($joinings[$key] || []), false));
+            const createPromises = Object.keys($records).map($key => {
+                let $record = $records[$key];
+                return this.create($record, ($joinings[$key] || []), false);
+            });
+            const $results = await Promise.all(createPromises);
+            $instances.push(...$results);
         }
 
         await this.touchIfTouching();

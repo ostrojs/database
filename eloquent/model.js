@@ -213,8 +213,13 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 		return this.getAttribute(this.getKeyName());
 	}
 
+
+
 	first() {
 		this.$query.limit(1)
+		// if (this.$attributes && Object.keys(this.$attributes).length) {
+		// 	this.where(this.$attributes)
+		// }
 		return this.get().then(res => {
 			if (res.length) {
 				return res[0]
@@ -483,7 +488,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 		$relation.addEagerConstraints($models);
 
 		$constraints($relation);
-
 		$relation = await $relation.match(
 			$relation.initRelation($models, $name),
 			await $relation.getEager(),
@@ -551,6 +555,8 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 				await this.performUpdate($query) : true;
 		} else {
 			$saved = await this.performInsert($query);
+			const $models = await this.eagerLoadRelations(collect([this]));
+
 			let $connection = $query.getConnection()
 			if (!this.getConnectionName() && $connection) {
 				this.setConnection($connection.getName());
@@ -857,6 +863,10 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 	}
 
+	withSavepointIfNeeded($scope) {
+		return $scope()
+	}
+
 	callScope($scope, $parameters = []) {
 		$parameters.unshift(this);
 		const $query = this.getQuery();
@@ -900,6 +910,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 		return this;
 	}
+
 	removedScopes() {
 		return this[kRemovedScopes];
 	}

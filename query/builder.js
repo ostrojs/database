@@ -27,7 +27,7 @@ class Builder {
 	}
 
 	from() {
-		this.$query = this.getQueryBuilder().from(...arguments)
+		this.$query = this.getQuery().from(...arguments)
 		return this;
 	}
 
@@ -402,7 +402,7 @@ class Builder {
 		const data = await query.count(name);
 		name = name.split('as ');
 		name = trim(last(name), ' ');
-		return Array.isArray(data) && data[0][name];
+		return Array.isArray(data) ? data[0][name] : null;
 
 	}
 
@@ -485,7 +485,7 @@ class Builder {
 	}
 
 	getQueryBuilder() {
-		return this.$query;
+		return this.$query?.$query || this.getQuery()
 	}
 
 	getQuery() {
@@ -546,13 +546,18 @@ class Builder {
 		}
 		return this.getQueryBuilder().first(select)
 	}
+	last(...select) {
+		this.orderBy('id', 'desc')
+		return this.first(select)
+	}
 
 	get() {
 		return this.getQueryBuilder()
 	}
 
 	async exists() {
-		return Boolean(await this.count());
+		const count = await this.count();
+		return Boolean(count);
 	}
 
 	forPage($page = 1, $perPage) {
