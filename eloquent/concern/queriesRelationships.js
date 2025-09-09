@@ -169,6 +169,7 @@ class QueriesRelationships {
                 .filter(statement => statement.grouping === 'columns')
                 .flatMap(statement => statement.value);
             existingColumns = existingColumns.length ? existingColumns : ['*']
+            this.clearSelect();
             if ($function === 'exists') {
                 this.select(this.newQuery().raw(
                     sprintf('exists(%s) as %s', $query.toSQL().sql, $alias),
