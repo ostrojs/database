@@ -398,7 +398,12 @@ class Builder {
 			name = name + ' as countResult';
 		}
 		const query = this.getQueryBuilder();
+		const existingColumns = query._statements
+			.filter(statement => statement.grouping === 'columns')
+			.flatMap(statement => statement.value).filter(c => c !== '*');
 		query.clearOrder();
+		query.clearSelect();
+		query.select(existingColumns)
 		const data = await query.count(name);
 		name = name.split('as ');
 		name = trim(last(name), ' ');
