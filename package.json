@@ -1,6 +1,6 @@
 {
   "name": "@ostro/database",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Database module for OstroJS",
   "main": "databaseManager.js",
   "scripts": {
