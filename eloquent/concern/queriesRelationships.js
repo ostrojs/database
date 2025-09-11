@@ -168,7 +168,7 @@ class QueriesRelationships {
             let existingColumns = this.getQuery()._statements
                 .filter(statement => statement.grouping === 'columns')
                 .flatMap(statement => statement.value);
-            existingColumns = existingColumns.length ? existingColumns : ['*']
+            existingColumns = existingColumns.length ? existingColumns : [this.getTable() + '.*'];
             this.clearSelect();
             if ($function === 'exists') {
                 this.select(this.newQuery().raw(
