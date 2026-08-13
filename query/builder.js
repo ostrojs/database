@@ -399,11 +399,11 @@ class Builder {
 		}
 		const query = this.getQueryBuilder();
 		query.clearOrder();
+		query.clearSelect();
 		const data = await query.count(name);
 		name = name.split('as ');
 		name = trim(last(name), ' ');
 		return Array.isArray(data) ? data[0][name] : null;
-
 	}
 
 	min() {

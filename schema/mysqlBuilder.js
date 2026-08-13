@@ -3,7 +3,9 @@ class MySqlBuilder extends Builder {
 
 	async dropAllTables() {
 		const tables = await this.getAllTables();
-		await this.statement(this.$grammar.compileDropAllTables(tables))
+		if (tables.length > 0) {
+			await this.statement(this.$grammar.compileDropAllTables(tables));
+		}
 
 	}
 
