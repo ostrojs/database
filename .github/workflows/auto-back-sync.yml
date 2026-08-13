@@ -1,4 +1,4 @@
-name: Upstream Master to Dev Back-Sync (ostrojs)
+name: Direct Master to Dev Sync (ostrojs & amarksingh)
 
 on:
   push:
@@ -7,11 +7,10 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  sync-master-to-dev:
-    name: Sync ostrojs/master -> ostrojs/dev & amarksingh/dev (Sync Fork)
+  direct-sync:
+    name: Direct Sync master -> dev (ostrojs & amarksingh)
     runs-on: ubuntu-latest
 
     # Prevent loop if commit message contains [skip sync] or is from bot
@@ -20,7 +19,7 @@ jobs:
       github.actor != 'github-actions[bot]'
 
     steps:
-      - name: Checkout ostrojs repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -31,53 +30,28 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Open PR from master to dev on ostrojs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TARGET_BRANCH: "dev"
-          SOURCE_BRANCH: "master"
-          SYNC_BRANCH: "sync/master-to-dev"
+      - name: Direct Sync master -> dev in ostrojs
         run: |
-          git fetch origin $TARGET_BRANCH 2>/dev/null || true
+          echo "=== Direct Sync master -> dev on ostrojs/${{ github.event.repository.name }} ==="
+          git fetch origin dev 2>/dev/null || true
+          git checkout dev 2>/dev/null || git checkout -b dev origin/dev 2>/dev/null || true
+          
+          echo "--> Merging master into dev..."
+          git merge master --no-edit -X theirs || git rebase master || true
+          
+          echo "--> Pushing dev to ostrojs/${{ github.event.repository.name }}..."
+          git push origin dev || git push origin dev --force-with-lease
 
-          BEHIND_COUNT=$(git rev-list --count origin/$TARGET_BRANCH..origin/$SOURCE_BRANCH 2>/dev/null || echo 0)
-          echo "Commits in master ahead of dev: $BEHIND_COUNT"
-
-          if [ "$BEHIND_COUNT" -gt 0 ]; then
-            EXISTING_PR=$(gh pr list --head "$SYNC_BRANCH" --base "$TARGET_BRANCH" --json number --jq '.[0].number')
-            if [ -z "$EXISTING_PR" ]; then
-              git checkout -b "$SYNC_BRANCH" "origin/$SOURCE_BRANCH"
-              git push origin "$SYNC_BRANCH" --force
-              gh pr create \
-                --base "$TARGET_BRANCH" \
-                --head "$SYNC_BRANCH" \
-                --title "chore(sync): back-sync release changes from master to dev" \
-                --body "Automated back-sync PR from \`master\` to \`dev\`.\n\n[skip sync]"
-            fi
-          fi
-
-      - name: Sync Fork to amarksingh/dev using GitHub gh repo sync
+      - name: Direct Sync / Push dev to amarksingh (Fork)
         env:
-          GH_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          CROSS_REPO_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
           FORK_REPO: "amarksingh/${{ github.event.repository.name }}"
           FORK_BRANCH: "dev"
         run: |
-          echo "=== Syncing Fork $FORK_REPO ($FORK_BRANCH) from upstream master ==="
+          echo "=== Direct Sync to Fork $FORK_REPO ($FORK_BRANCH) ==="
+          # Try GitHub gh repo sync API first
           gh repo sync "$FORK_REPO" --branch "$FORK_BRANCH" --source "ostrojs/${{ github.event.repository.name }}" || {
-            echo "Warning: gh repo sync direct API sync encountered divergence. Falling back to PR strategy..."
-            git remote add fork "https://x-access-token:${GH_TOKEN}@github.com/${FORK_REPO}.git" 2>/dev/null || true
-            git fetch fork $FORK_BRANCH 2>/dev/null || true
-
-            git checkout -b "sync/ostrojs-dev-to-amarksingh-dev" "origin/master"
-            git push fork "sync/ostrojs-dev-to-amarksingh-dev" --force
-
-            EXISTING_FORK_PR=$(gh pr list --repo "$FORK_REPO" --head "sync/ostrojs-dev-to-amarksingh-dev" --base "$FORK_BRANCH" --json number --jq '.[0].number')
-            if [ -z "$EXISTING_FORK_PR" ]; then
-              gh pr create \
-                --repo "$FORK_REPO" \
-                --base "$FORK_BRANCH" \
-                --head "sync/ostrojs-dev-to-amarksingh-dev" \
-                --title "chore(sync): back-sync upstream release changes into dev" \
-                --body "Automated back-sync PR from \`ostrojs:${github.event.repository.name}:master\` to \`${FORK_REPO}:${FORK_BRANCH}\`.\n\n[skip sync]"
-            fi
+            echo "--> Fast-forwarding / pushing directly to $FORK_REPO..."
+            git remote add fork "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/${FORK_REPO}.git" 2>/dev/null || git remote set-url fork "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/${FORK_REPO}.git"
+            git push fork dev:dev || git push fork dev:dev --force-with-lease
           }
