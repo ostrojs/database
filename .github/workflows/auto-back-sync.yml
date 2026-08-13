@@ -33,6 +33,7 @@ jobs:
 
       - name: Pure Branch Sync Operations
         env:
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
           REF_NAME: ${{ github.ref_name }}
