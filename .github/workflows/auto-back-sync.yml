@@ -1,4 +1,4 @@
-name: Pure Sync Workflow (Master & Dev Only)
+name: Universal Fork Sync Workflow (ostrojs & any fork)
 
 on:
   push:
@@ -10,8 +10,8 @@ permissions:
   contents: write
 
 jobs:
-  pure-sync:
-    name: Pure Branch Sync (master -> dev & dev -> dev)
+  universal-sync:
+    name: Universal Branch Sync (ostrojs & any fork)
     runs-on: ubuntu-latest
 
     # Prevent infinite loop if commit message contains [skip sync] or is from bot
@@ -31,7 +31,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Pure Branch Sync Operations
+      - name: Branch Sync Operations
         env:
           GH_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
           REPO_OWNER: ${{ github.repository_owner }}
@@ -47,25 +47,18 @@ jobs:
 
           if [ "$REPO_OWNER" == "ostrojs" ]; then
             if [ "$REF_NAME" == "master" ]; then
-              echo "--> [OSTROJS MASTER PUSH] 1. Merging ostrojs/master -> ostrojs/dev..."
+              echo "--> [OSTROJS MASTER PUSH] Merging ostrojs/master -> ostrojs/dev..."
               git fetch origin dev 2>/dev/null || true
               git checkout dev 2>/dev/null || git checkout -b dev origin/dev 2>/dev/null || true
               git merge master --no-edit -X theirs || git rebase master || true
               git push origin dev || git push origin dev --force-with-lease
-
-              echo "--> [OSTROJS MASTER PUSH] 2. Syncing ostrojs/master -> amarksingh/dev..."
-              gh repo sync "amarksingh/$REPO_NAME" --branch "dev" --source "ostrojs/$REPO_NAME" || {
-                git remote add fork "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/amarksingh/${REPO_NAME}.git" 2>/dev/null || true
-                git push fork dev:dev || git push fork dev:dev --force-with-lease
-              }
-            elif [ "$REF_NAME" == "dev" ]; then
-              echo "--> [OSTROJS DEV PUSH] Syncing ostrojs/dev -> amarksingh/dev..."
-              gh repo sync "amarksingh/$REPO_NAME" --branch "dev" --source "ostrojs/$REPO_NAME" || {
-                git remote add fork "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/amarksingh/${REPO_NAME}.git" 2>/dev/null || true
-                git push fork dev:dev || git push fork dev:dev --force-with-lease
-              }
             fi
           else
-            echo "--> [AMARKSINGH DEV PUSH] Syncing ostrojs/dev -> amarksingh/dev..."
-            gh repo sync "$REPO_OWNER/$REPO_NAME" --branch "dev" --source "ostrojs/$REPO_NAME" || true
+            echo "--> [FORK REPO EVENT ($REPO_OWNER)] Syncing ostrojs/dev -> $REPO_OWNER/dev..."
+            gh repo sync "$REPO_OWNER/$REPO_NAME" --branch "dev" --source "ostrojs/$REPO_NAME" || {
+              echo "--> Fast-forwarding / pushing directly from upstream ostrojs/dev..."
+              git remote add upstream "https://github.com/ostrojs/${REPO_NAME}.git" 2>/dev/null || true
+              git fetch upstream dev 2>/dev/null || true
+              git push origin upstream/dev:refs/heads/dev --force-with-lease || true
+            }
           fi
