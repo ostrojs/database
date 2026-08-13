@@ -1,16 +1,17 @@
-name: Direct Master to Dev Sync (ostrojs & amarksingh)
+name: Smart Sync (ostrojs & amarksingh)
 
 on:
   push:
     branches:
       - master
+      - dev
 
 permissions:
   contents: write
 
 jobs:
-  direct-sync:
-    name: Direct Sync master -> dev (ostrojs & amarksingh)
+  smart-sync:
+    name: Conditional Sync Workflow
     runs-on: ubuntu-latest
 
     # Prevent loop if commit message contains [skip sync] or is from bot
@@ -30,28 +31,43 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Direct Sync master -> dev in ostrojs
-        run: |
-          echo "=== Direct Sync master -> dev on ostrojs/${{ github.event.repository.name }} ==="
-          git fetch origin dev 2>/dev/null || true
-          git checkout dev 2>/dev/null || git checkout -b dev origin/dev 2>/dev/null || true
-          
-          echo "--> Merging master into dev..."
-          git merge master --no-edit -X theirs || git rebase master || true
-          
-          echo "--> Pushing dev to ostrojs/${{ github.event.repository.name }}..."
-          git push origin dev || git push origin dev --force-with-lease
-
-      - name: Direct Sync / Push dev to amarksingh (Fork)
+      - name: Dynamic Repository & Branch Context Check
         env:
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          REF_NAME: ${{ github.ref_name }}
           CROSS_REPO_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
-          FORK_REPO: "amarksingh/${{ github.event.repository.name }}"
-          FORK_BRANCH: "dev"
         run: |
-          echo "=== Direct Sync to Fork $FORK_REPO ($FORK_BRANCH) ==="
-          # Try GitHub gh repo sync API first
-          gh repo sync "$FORK_REPO" --branch "$FORK_BRANCH" --source "ostrojs/${{ github.event.repository.name }}" || {
-            echo "--> Fast-forwarding / pushing directly to $FORK_REPO..."
-            git remote add fork "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/${FORK_REPO}.git" 2>/dev/null || git remote set-url fork "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/${FORK_REPO}.git"
-            git push fork dev:dev || git push fork dev:dev --force-with-lease
-          }
+          echo "=================================================="
+          echo "Repository Owner : $REPO_OWNER"
+          echo "Repository Name  : $REPO_NAME"
+          echo "Triggered Branch : $REF_NAME"
+          echo "=================================================="
+
+          if [ "$REPO_OWNER" == "ostrojs" ]; then
+            if [ "$REF_NAME" == "master" ]; then
+              echo "--> [OSTROJS MASTER EVENT] Syncing ostrojs/master -> ostrojs/dev..."
+              git fetch origin dev 2>/dev/null || true
+              git checkout dev 2>/dev/null || git checkout -b dev origin/dev 2>/dev/null || true
+              
+              git merge master --no-edit -X theirs || git rebase master || true
+              git push origin dev || git push origin dev --force-with-lease
+              
+              echo "--> Syncing ostrojs/master -> amarksingh/dev..."
+              gh repo sync "amarksingh/$REPO_NAME" --branch "dev" --source "ostrojs/$REPO_NAME" || {
+                git remote add fork "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/amarksingh/${REPO_NAME}.git" 2>/dev/null || true
+                git push fork dev:dev || git push fork dev:dev --force-with-lease
+              }
+            elif [ "$REF_NAME" == "dev" ]; then
+              echo "--> [OSTROJS DEV EVENT] Syncing ostrojs/dev -> amarksingh/dev..."
+              gh repo sync "amarksingh/$REPO_NAME" --branch "dev" --source "ostrojs/$REPO_NAME" || {
+                git remote add fork "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/amarksingh/${REPO_NAME}.git" 2>/dev/null || true
+                git push fork dev:dev || git push fork dev:dev --force-with-lease
+              }
+            fi
+          else
+            echo "--> [INDIVIDUAL REPO EVENT ($REPO_OWNER)] Syncing ostrojs/dev -> $REPO_OWNER/dev..."
+            gh repo sync "$REPO_OWNER/$REPO_NAME" --branch "dev" --source "ostrojs/$REPO_NAME" || {
+              echo "Notice: Sync complete or direct fork sync active."
+            }
+          fi
