@@ -1,38 +1,61 @@
 {
-  "name": "@ostro/database",
-  "version": "1.4.6",
-  "description": "Database module for OstroJS",
-  "main": "databaseManager.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies": {
-    "@ostro/contracts": "^1.0.2",
-    "@ostro/support": "^1.2.0",
-    "@ostro/pagination": "^1.0.4",
-    "fs-extra": "^8.1.0",
-    "knex": "^2.3.0",
-    "lodash": "^4.17.21",
-    "lodash.get": "^4.4.2"
-  },
-  "engines": {
-    "node": ">=12.0.0"
-  },
-  "engineStrict": true,
-  "keywords": [
-    "database",
-    "query builder",
-    "model",
-    "eloquent"
-  ],
-  "author": "amar",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ostrojs/database.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ostrojs/database/issues"
-  },
-  "homepage": "https://github.com/ostrojs/database#readme"
+    "name": "@ostro/database",
+    "version": "2.0.0-alpha.1",
+    "description": "Database module for OstroJS",
+    "main": "build/databaseManager.js",
+    "types": "build/databaseManager.d.ts",
+    "files": [
+        "build"
+    ],
+    "exports": {
+        ".": {
+            "types": "./build/databaseManager.d.ts",
+            "default": "./build/databaseManager.js"
+        },
+        "./*": {
+            "types": "./build/*.d.ts",
+            "default": "./build/*.js"
+        }
+    },
+    "scripts": {
+        "build": "rm -rf build && npx tsc -p tsconfig.build.json && mkdir -p build/console/seeds/stubs build/console/factories/stubs build/migrations/stubs && cp src/console/seeds/stubs/* build/console/seeds/stubs/ && cp src/console/factories/stubs/* build/console/factories/stubs/ && cp src/migrations/stubs/* build/migrations/stubs/ && node scripts/build.js",
+        "prepublishOnly": "npm run build",
+        "test": "npx c8 npx jest --runInBand --no-coverage --forceExit",
+        "clean": "rm -rf build coverage"
+    },
+    "dependencies": {
+        "@ostro/console": "^2.0.0-alpha.1",
+        "@ostro/contracts": "^2.0.0-alpha.1",
+        "@ostro/pagination": "^2.0.0-alpha.1",
+        "@ostro/support": "^2.0.0-alpha.1",
+        "fs-extra": "^11.4.1",
+        "knex": "^3.1.0",
+        "lodash": "^4.17.21",
+        "lodash.get": "^4.4.2",
+        "sqlite3": "^6.0.1"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "engineStrict": true,
+    "keywords": [
+        "database",
+        "query builder",
+        "model",
+        "eloquent"
+    ],
+    "author": "amar",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ostrojs/database.git"
+    },
+    "bugs": {
+        "url": "https://github.com/ostrojs/database/issues"
+    },
+    "homepage": "https://github.com/ostrojs/database#readme",
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "typescript": "^5.8.0"
+    }
 }

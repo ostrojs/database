@@ -1,0 +1,16 @@
+import Schema from '@ostro/support/facades/schema';
+import Migration from '@ostro/database/migration';
+import type { Blueprint } from '@ostro/contracts/database/blueprint';
+
+class {{ class }} extends Migration {
+
+    public override async up(): Promise<void> {
+        //
+    }
+
+    public override async down(): Promise<void> {
+        //
+    }
+}
+
+export default {{ class }};
