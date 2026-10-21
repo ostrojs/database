@@ -1,0 +1,10 @@
+import Seeder from '@ostro/database/seeder';
+
+class {{ class }} extends Seeder {
+
+    public async run(): Promise<void> {
+        //
+    }
+}
+
+export default {{ class }};

@@ -1,0 +1,15 @@
+import Factory from '@ostro/database/eloquent/factories/factory';
+import {{ model }} from '{{ namespacedModel }}';
+
+class {{ factory }}Factory extends Factory {
+
+    protected $model = {{ model }};
+
+    public definition(): Record<string, any> {
+        return {
+
+        };
+    }
+}
+
+export default {{ factory }}Factory;
