@@ -57,11 +57,16 @@ class DatabaseMigrationRepository {
      * getMigrationBatches method.
      * @returns {any}
      */
-    public getMigrationBatches() {
-        return this.table()
+    public async getMigrationBatches() {
+        const rows = await this.table()
             .orderBy('batch', 'asc')
             .orderBy('migration', 'asc')
-            .pluck('batch', 'migration')
+            .get();
+        const batches: Record<string, number> = {};
+        for (const row of rows) {
+            batches[row.migration] = row.batch;
+        }
+        return batches;
     }
 
     /**
