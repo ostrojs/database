@@ -1,4 +1,5 @@
 import { trim, isDirectory } from '@ostro/support/function';
+import { camelCase } from '@ostro/support/string';
 import GeneratorCommand from '@ostro/console/generatorCommand';
 import path from 'path';
 /**
@@ -62,10 +63,11 @@ class MakeSeederCommand extends GeneratorCommand {
      */
     public async getPath($name: string) {
         let ext = this.isTypeScript() ? '.ts' : '.js';
+        let fileName = camelCase(this.getFileName($name));
         if (await isDirectory(this.$app.databasePath('/seeds'))) {
-            return this.$app.databasePath('seeds/' + (this.getFileName($name) as any).camelCase() + ext);
+            return this.$app.databasePath('seeds/' + fileName + ext);
         } else {
-            return this.$app.databasePath('seeders/' + (this.getFileName($name) as any).camelCase() + ext);
+            return this.$app.databasePath('seeders/' + fileName + ext);
         }
     }
 
