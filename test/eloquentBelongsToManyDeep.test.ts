@@ -528,6 +528,7 @@ describe('BelongsToMany & InteractsWithPivotTable 100% Coverage Suite', () => {
         const CollectionInterfaceModule = require('@ostro/contracts/collection/collect');
         const CollectionInterface = CollectionInterfaceModule.default || CollectionInterfaceModule;
         class MockCollectionContract extends CollectionInterface {
+            constructor() { super([]); }
             toArray() { return [role1.id]; }
         }
         const contractColl = new MockCollectionContract();
@@ -542,6 +543,7 @@ describe('BelongsToMany & InteractsWithPivotTable 100% Coverage Suite', () => {
 
         // belongsToMany.js line 305 & 307: findMany with empty CollectionInterface
         class MockEmptyCollectionContract extends CollectionInterface {
+            constructor() { super([]); }
             toArray() { return []; }
         }
         const emptyColl = new MockEmptyCollectionContract();
