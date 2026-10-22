@@ -337,8 +337,18 @@ class Migrator {
         delete require.cache[resolved];
 
         let $mod = require($path);
-        let $migration = $mod.default || $mod;
-        $migration = $migration.default || $migration;
+        let $migration: any;
+        if (typeof $mod === 'function') {
+            $migration = $mod;
+        } else if ($mod && typeof $mod === 'object') {
+            if (Object.prototype.hasOwnProperty.call($mod, 'default')) {
+                $migration = $mod.default;
+            } else {
+                $migration = $mod;
+            }
+        } else {
+            $migration = $mod;
+        }
 
         return typeof $migration == 'object' ? $migration : new $migration;
     }
