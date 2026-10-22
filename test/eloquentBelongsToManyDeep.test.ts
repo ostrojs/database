@@ -345,6 +345,7 @@ describe('BelongsToMany & InteractsWithPivotTable 100% Coverage Suite', () => {
         const BaseCollectModule = require('@ostro/contracts/collection/collect');
         const BaseCollect = BaseCollectModule.default || BaseCollectModule;
         class MockBaseCollection extends BaseCollect {
+            constructor() { super([]); }
             toArray() { return [role1.id, role2.id]; }
         }
         expect(customRel.parseIds(new MockBaseCollection())).toEqual([role1.id, role2.id]);
