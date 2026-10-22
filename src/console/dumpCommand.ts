@@ -1,6 +1,6 @@
 declare var database_path: any, config: any, is_dir: any, app_path: any, isDirectory: any;
 const { dirname } = require("path");
-const { tap } = require("@ostro/support/helpers");
+import { tap } from "@ostro/support/function";
 import Command from '@ostro/console/command';
 
 /**

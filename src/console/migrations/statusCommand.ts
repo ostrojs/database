@@ -1,4 +1,4 @@
-const { count } = require("@ostro/support/helpers");
+import { count } from "@ostro/support/function";
 import BaseCommand from './baseCommand';
 /**
  * Class StatusCommand.
