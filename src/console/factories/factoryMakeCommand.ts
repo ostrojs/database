@@ -1,6 +1,6 @@
 import path from "path";
 import { trim, class_basename, isDirectory } from "@ostro/support/function";
-import { endsWith } from "@ostro/support/string";
+import { endsWith, camelCase, finish, pascal, replaceAllArray } from "@ostro/support/string";
 import GeneratorCommand from '@ostro/console/generatorCommand';
 
 /**
@@ -77,14 +77,14 @@ class FactoryMakeCommand extends GeneratorCommand {
             'NamespacedDummyModel': $namespaceModel,
             '{{ namespacedModel }}': $namespaceModel,
             '{{namespacedModel}}': $namespaceModel,
-            'DummyModel': ($model as any).pascal(),
-            '{{ model }}': ($model as any).pascal(),
-            '{{model}}': ($model as any).pascal(),
-            '{{ factory }}': ($factory as any).pascal(),
-            '{{factory}}': ($factory as any).pascal(),
+            'DummyModel': pascal($model),
+            '{{ model }}': pascal($model),
+            '{{model}}': pascal($model),
+            '{{ factory }}': pascal($factory),
+            '{{factory}}': pascal($factory),
         }
 
-        return super.buildClass($name).then(content => content.replaceAllArray(Object.keys($replace), Object.values($replace)))
+        return super.buildClass($name).then(content => replaceAllArray(content, Object.keys($replace), Object.values($replace)))
     }
 
     /**
@@ -94,9 +94,9 @@ class FactoryMakeCommand extends GeneratorCommand {
      * @returns {any}
      */
     public async getPath($name: string) {
-        $name = ($name as any).finish('Factory').toString();
+        $name = finish($name, 'Factory');
         let ext = this.isTypeScript() ? '.ts' : '.js';
-        return this.$app.databasePath('factories/' + (this.getFileName($name) as any).camelCase() + ext);
+        return this.$app.databasePath('factories/' + camelCase(this.getFileName($name)) + ext);
 
     }
 

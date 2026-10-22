@@ -2,7 +2,7 @@ import BaseCommand from './baseCommand';
 import TableGuesser from './tableGuesser';
 import path from 'path';
 import InvalidArgumentException from '@ostro/contracts/exception/invalidArgumentException';
-import { isString } from '@ostro/support/string';
+import { isString, plural, camelCase, snakeCase } from '@ostro/support/string';
 /**
  * Class CreateSchema.
  */
@@ -86,8 +86,9 @@ class CreateSchema extends BaseCommand {
      * @returns {any}
      */
     public async writeMigration($name: string, $table: string, $create: any) {
+        let migrationName = snakeCase(camelCase(plural($name)));
         let $file = await this.$creator.create(
-            ($name as any).plural().camelCase().snakeCase(), this.getMigrationPath(), $table, $create
+            migrationName, this.getMigrationPath(), $table, $create
         );
 
         if (!this.option('fullpath')) {
