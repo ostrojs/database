@@ -1,5 +1,4 @@
-import { trim } from '@ostro/support/function';
-declare var isDirectory: any;
+import { trim, isDirectory } from '@ostro/support/function';
 import GeneratorCommand from '@ostro/console/generatorCommand';
 import path from 'path';
 /**

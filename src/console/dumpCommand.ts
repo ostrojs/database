@@ -1,4 +1,3 @@
-declare var database_path: any, config: any, is_dir: any, app_path: any, isDirectory: any;
 const { dirname } = require("path");
 import { tap } from "@ostro/support/function";
 import Command from '@ostro/console/command';
@@ -53,7 +52,7 @@ class DumpCommand extends Command {
 
         if (this.option('prune')) {
             await this.$file.deleteDirectory(
-                database_path('migrations'), false
+                this.$app.databasePath('migrations'), false
             );
 
             this.info('Migrations pruned successfully.');
@@ -67,7 +66,7 @@ class DumpCommand extends Command {
      */
     public schemaState($connection: any) {
         return $connection.getSchemaState()
-            .withMigrationTable($connection.getTablePrefix() + config.get('database.migrations', 'migrations'))
+            .withMigrationTable($connection.getTablePrefix() + (this.$app ? this.$app.config.get('database.migrations', 'migrations') : 'migrations'))
             .handleOutputUsing(function ($type, $buffer) {
                 this.output.write($buffer);
             });
@@ -79,7 +78,7 @@ class DumpCommand extends Command {
      * @returns {any}
      */
     public path($connection: any) {
-        return tap(this.option('path') || database_path('schema/' + $connection.getName() + '-schema.dump'), async ($path) => {
+        return tap(this.option('path') || this.$app.databasePath('schema/' + $connection.getName() + '-schema.dump'), async ($path) => {
             await this.$file.ensureDirectoryExists(dirname($path));
         });
     }
