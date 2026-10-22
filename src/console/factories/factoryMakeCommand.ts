@@ -1,7 +1,5 @@
 import path from "path";
 import { trim, class_basename } from "@ostro/support/function";
-import { endsWith } from "@ostro/support/string";
-declare var is_dir: any, app_path: any;
 import GeneratorCommand from '@ostro/console/generatorCommand';
 
 /**
