@@ -2,6 +2,7 @@ import BaseCommand from './baseCommand';
 import TableGuesser from './tableGuesser';
 import path from 'path';
 import InvalidArgumentException from '@ostro/contracts/exception/invalidArgumentException';
+import { isString } from '@ostro/support/string';
 /**
  * Class CreateSchema.
  */
@@ -56,7 +57,7 @@ class CreateSchema extends BaseCommand {
 
         let $create = this.input.getOption('create') || false;
 
-        if (!$table && (String as any).isString($create)) {
+        if (!$table && isString($create)) {
             $table = $create;
 
             $create = true;

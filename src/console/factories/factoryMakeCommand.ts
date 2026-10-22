@@ -1,5 +1,6 @@
 import path from "path";
 import { trim, class_basename } from "@ostro/support/function";
+import { endsWith } from "@ostro/support/string";
 declare var is_dir: any, app_path: any;
 import GeneratorCommand from '@ostro/console/generatorCommand';
 
@@ -107,7 +108,7 @@ class FactoryMakeCommand extends GeneratorCommand {
      * @returns {any}
      */
     public async guessModelName($name: string) {
-        if ((String as any).endsWith($name, 'Factory')) {
+        if (endsWith($name, 'Factory')) {
             $name = $name.substr(0, -7);
         }
         let $modelName = await this.qualifyModel($name);
