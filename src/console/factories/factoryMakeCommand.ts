@@ -1,5 +1,6 @@
 import path from "path";
-import { trim, class_basename } from "@ostro/support/function";
+import { trim, class_basename, isDirectory } from "@ostro/support/function";
+import { endsWith } from "@ostro/support/string";
 import GeneratorCommand from '@ostro/console/generatorCommand';
 
 /**
@@ -115,7 +116,7 @@ class FactoryMakeCommand extends GeneratorCommand {
             return $modelName;
         }
 
-        if (is_dir(app_path('models/'))) {
+        if (this.$app && await isDirectory(this.$app.basePath('app/models'))) {
             return this.rootNamespace('models/model');
         }
 
