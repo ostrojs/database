@@ -9,7 +9,7 @@ class Seeder {
     public $command: any = null;
     public $resolver: any;
     public $app: any = null;
-    public declare run?: any;
+    public run?(...args: any[]): Promise<any> | any;
 
     /**
      * Create a new instance.
