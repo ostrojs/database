@@ -1,6 +1,6 @@
 {
     "name": "@ostro/database",
-    "version": "2.0.0-alpha.12",
+    "version": "2.0.0-alpha.13",
     "description": "Database module for OstroJS",
     "main": "databaseManager.js",
     "types": ".types/databaseManager.d.ts",
@@ -22,10 +22,10 @@
         "lint:check": "tsc --noEmit -p tsconfig.build.json"
     },
     "dependencies": {
-        "@ostro/console": "^2.0.0-alpha.9",
-        "@ostro/contracts": "^2.0.0-alpha.8",
-        "@ostro/pagination": "^2.0.0-alpha.7",
-        "@ostro/support": "^2.0.0-alpha.9",
+        "@ostro/console": "^2.0.0-alpha.10",
+        "@ostro/contracts": "^2.0.0-alpha.9",
+        "@ostro/pagination": "^2.0.0-alpha.8",
+        "@ostro/support": "^2.0.0-alpha.10",
         "fs-extra": "^11.4.1",
         "knex": "^3.3.0",
         "lodash": "^4.17.21",
@@ -53,7 +53,7 @@
     },
     "homepage": "https://github.com/ostrojs/database#readme",
     "devDependencies": {
-        "@ostro/builder": "^2.0.0-alpha.6",
+        "@ostro/builder": "^2.0.0-alpha.7",
         "@types/jest": "^30.0.0",
         "@types/node": "^22.0.0",
         "c8": "^10.1.3",
