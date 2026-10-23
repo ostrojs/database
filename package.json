@@ -1,6 +1,6 @@
 {
     "name": "@ostro/database",
-    "version": "2.0.0-alpha.8",
+    "version": "2.0.0-alpha.9",
     "description": "Database module for OstroJS",
     "main": "build/databaseManager.js",
     "types": "./build/types/databaseManager.d.ts",
@@ -25,10 +25,10 @@
         "lint:check": "tsc --noEmit -p tsconfig.build.json"
     },
     "dependencies": {
-        "@ostro/console": "^2.0.0-alpha.5",
-        "@ostro/contracts": "^2.0.0-alpha.4",
-        "@ostro/pagination": "^2.0.0-alpha.3",
-        "@ostro/support": "^2.0.0-alpha.4",
+        "@ostro/console": "^2.0.0-alpha.6",
+        "@ostro/contracts": "^2.0.0-alpha.5",
+        "@ostro/pagination": "^2.0.0-alpha.4",
+        "@ostro/support": "^2.0.0-alpha.5",
         "fs-extra": "^11.4.1",
         "knex": "^3.3.0",
         "lodash": "^4.17.21",
@@ -63,7 +63,7 @@
         "jest": "^30.5.2",
         "ts-jest": "^29.4.15",
         "ts-node": "^10.9.2",
-        "@ostro/builder": "^2.0.0-alpha.2"
+        "@ostro/builder": "^2.0.0-alpha.3"
     },
     "overrides": {
         "sprintf-js": "^1.1.3",
