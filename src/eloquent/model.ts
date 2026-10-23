@@ -158,6 +158,34 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 		this[kResolver] = null;
 	}
 
+	public static with<T extends Model>(this: new (...args: any[]) => T, ...relations: any[]): T {
+		return (this as any).__call(this, 'with', relations);
+	}
+
+	public static query<T extends Model>(this: new (...args: any[]) => T): T {
+		return (this as any).__call(this, 'newQuery', []);
+	}
+
+	public static where<T extends Model>(this: new (...args: any[]) => T, ...args: any[]): T {
+		return (this as any).__call(this, 'where', args);
+	}
+
+	public static find<T extends Model>(this: new (...args: any[]) => T, id: any, columns?: any[]): Promise<T | null> {
+		return (this as any).__call(this, 'find', [id, columns]);
+	}
+
+	public static first<T extends Model>(this: new (...args: any[]) => T, columns?: any[]): Promise<T | null> {
+		return (this as any).__call(this, 'first', [columns]);
+	}
+
+	public static all<T extends Model>(this: new (...args: any[]) => T, columns?: any[]): Promise<T[]> {
+		return (this as any).__call(this, 'get', [columns]);
+	}
+
+	public static create<T extends Model>(this: new (...args: any[]) => T, attributes: Record<string, any>): Promise<T> {
+		return (this as any).__call(this, 'create', [attributes]);
+	}
+
 	/**
 	 * fillable method.
 	 * @param {*} obj

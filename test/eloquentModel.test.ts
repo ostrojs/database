@@ -355,6 +355,29 @@ describe('Eloquent Model Comprehensive Unit Tests', () => {
                 User.totallyNonExistentStaticMethod();
             }).toThrow();
         });
+
+        test('static helper methods forward to query properly', async () => {
+            const queryInst = User.query();
+            expect(queryInst).toBeDefined();
+
+            const withInst = User.with('posts');
+            expect(withInst).toBeDefined();
+
+            const whereInst = User.where('active', 1);
+            expect(whereInst).toBeDefined();
+
+            const firstRes = await User.first();
+            expect(firstRes).toBeDefined();
+
+            const allRes = await User.all();
+            expect(allRes.length).toBeGreaterThan(0);
+
+            const findRes = await User.find(1);
+            expect(findRes).toBeDefined();
+
+            const createdRes = await User.create({ name: 'Static User', email: 'static@test.com' });
+            expect(createdRes.name).toBe('STATIC USER');
+        });
     });
 
 });
