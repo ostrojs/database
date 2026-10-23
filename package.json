@@ -28,7 +28,7 @@
         "@ostro/console": "^2.0.0-alpha.6",
         "@ostro/contracts": "^2.0.0-alpha.5",
         "@ostro/pagination": "^2.0.0-alpha.4",
-        "@ostro/support": "^2.0.0-alpha.5",
+        "@ostro/support": "^2.0.0-alpha.6",
         "fs-extra": "^11.4.1",
         "knex": "^3.3.0",
         "lodash": "^4.17.21",
