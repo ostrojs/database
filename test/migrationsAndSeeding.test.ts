@@ -1,10 +1,11 @@
+import { describe, test, expect, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import { createDatabaseManager } from './setup';
 import DatabaseMigrationRepository from '../src/migrations/databaseMigrationRepository';
 import Migrator from '../src/migrations/migrator';
 import Migration from '../src/migration';
 import Seeder from '../src/seeder';
 import fs from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 
 describe('Database Migrations and Seeding Comprehensive Unit Tests', () => {
 

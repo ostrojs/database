@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, afterEach } from "@jest/globals";
 const { createDatabaseManager } = require('./setup');
 
 describe('Schema Builder Comprehensive Unit Tests', () => {

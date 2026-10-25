@@ -69,7 +69,7 @@ class MigrationServiceProvider extends ServiceProvider {
      */
     public registerCreator() {
         this.$app.singleton('migration.creator', function ($app) {
-            return new MigrationCreator($app['files'], $app.basePath('stubs'));
+            return new MigrationCreator($app['files'], $app.basePath('stubs'), $app);
         });
     }
 

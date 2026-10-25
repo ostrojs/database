@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, beforeEach, afterAll } from "@jest/globals";
 const { createDatabaseManager } = require('./setup');
 const _Model = require('../src/eloquent/model');
 const Model = _Model.default || _Model;
@@ -354,6 +355,43 @@ describe('Eloquent Model Comprehensive Unit Tests', () => {
             expect(() => {
                 User.totallyNonExistentStaticMethod();
             }).toThrow();
+        });
+
+        test('static helper methods forward to query properly', async () => {
+            const queryInst = User.query();
+            expect(queryInst).toBeDefined();
+
+            const withInst = User.with('posts');
+            expect(withInst).toBeDefined();
+
+            const whereInst = User.where('active', 1);
+            expect(whereInst).toBeDefined();
+
+            const firstRes = await User.first();
+            expect(firstRes).toBeDefined();
+
+            const allRes = await User.all();
+            expect(allRes.length).toBeGreaterThan(0);
+
+            const findRes = await User.find(1);
+            expect(findRes).toBeDefined();
+
+            const createdRes = await User.create({ name: 'Static User', email: 'static@test.com' });
+            expect(createdRes.name).toBe('STATIC USER');
+
+            const getRes = await User.get();
+            expect(getRes.length).toBeGreaterThan(0);
+
+            const inserted = await User.insert({ name: 'Inserted User', email: 'inserted@test.com' });
+            expect(inserted).toBeDefined();
+
+            const fon = await User.firstOrNew({ email: 'fon@test.com' }, { name: 'FON User' });
+            expect(fon.name).toBe('FON USER');
+            expect(fon.$exists).toBe(false);
+
+            const uoc = await User.updateOrCreate({ email: 'uoc@test.com' }, { name: 'UOC User' });
+            expect(uoc.name).toBe('UOC USER');
+            expect(uoc.id).toBeDefined();
         });
     });
 

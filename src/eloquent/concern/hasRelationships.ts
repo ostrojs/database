@@ -338,11 +338,31 @@ class HasRelationships {
     }
 
     /**
+     * Resolve related model class or instance.
+     * @param {*} $related
+     * @returns {any}
+     */
+    public resolveRelatedModel($related: any) {
+        if (typeof $related === 'string') {
+            if ($related.startsWith('~/')) {
+                const path = require('node:path');
+                $related = path.resolve(process.cwd(), $related.slice(2));
+            }
+            $related = require($related);
+        }
+        if ($related && typeof $related === 'object' && 'default' in $related) {
+            $related = $related.default;
+        }
+        return $related;
+    }
+
+    /**
      * newRelatedInstance method.
      * @param {*} $class
      * @returns {any}
      */
     public newRelatedInstance($class: any) {
+        $class = this.resolveRelatedModel($class);
         return tap(new $class, ($instance) => {
             if (!$instance.getConnectionName()) {
                 $instance.setConnection(this.$connection);
