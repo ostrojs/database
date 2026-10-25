@@ -1,31 +1,31 @@
 {
     "name": "@ostro/database",
-    "version": "2.0.0-alpha.13",
+    "version": "2.0.0-alpha.6",
     "description": "Database module for OstroJS",
     "main": "databaseManager.js",
-    "types": ".types/databaseManager.d.ts",
+    "types": ".typed/databaseManager.d.ts",
     "exports": {
         ".": {
-            "types": "./.types/databaseManager.d.ts",
+            "types": "./.typed/databaseManager.d.ts",
             "default": "./databaseManager.js"
         },
         "./*": {
-            "types": "./.types/*.d.ts",
+            "types": "./.typed/*.d.ts",
             "default": "./*.js"
         }
     },
     "scripts": {
-        "build": "npm run lint:check && rm -rf build && npx tsc -p tsconfig.build.json && mkdir -p build/console/seeds/stubs build/console/factories/stubs build/migrations/stubs && cp src/console/seeds/stubs/* build/console/seeds/stubs/ && cp src/console/factories/stubs/* build/console/factories/stubs/ && cp src/migrations/stubs/* build/migrations/stubs/ && node scripts/build.js",
+        "build": "npm run lint:check && rm -rf build && ostro-build --prepare",
         "prepublishOnly": "npm run build",
-        "test": "npx c8 npx jest --runInBand --no-coverage --forceExit",
+        "test": "jest --runInBand --forceExit",
         "clean": "rm -rf build coverage",
-        "lint:check": "tsc --noEmit -p tsconfig.build.json"
+        "lint:check": "tsc --noEmit"
     },
     "dependencies": {
-        "@ostro/console": "^2.0.0-alpha.10",
-        "@ostro/contracts": "^2.0.0-alpha.9",
-        "@ostro/pagination": "^2.0.0-alpha.8",
-        "@ostro/support": "^2.0.0-alpha.10",
+        "@ostro/console": "^2.0.0-alpha.3",
+        "@ostro/contracts": "^2.0.0-alpha.3",
+        "@ostro/pagination": "^2.0.0-alpha.3",
+        "@ostro/support": "^2.0.0-alpha.3",
         "fs-extra": "^11.4.1",
         "knex": "^3.3.0",
         "lodash": "^4.17.21",
@@ -53,7 +53,7 @@
     },
     "homepage": "https://github.com/ostrojs/database#readme",
     "devDependencies": {
-        "@ostro/builder": "^2.0.0-alpha.7",
+        "@ostro/builder": "^2.0.0-alpha.1",
         "@types/jest": "^30.0.0",
         "@types/node": "^22.0.0",
         "c8": "^10.1.3",

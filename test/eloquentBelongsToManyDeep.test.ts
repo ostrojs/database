@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, afterAll, jest } from "@jest/globals";
 const { createDatabaseManager } = require('./setup');
 const _Model = require('../src/eloquent/model');
 const Model = _Model.default || _Model;

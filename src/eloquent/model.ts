@@ -72,7 +72,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 	 * @param {*} $attributes
 	 * @param {*} newInstance
 	 */
-	constructor($attributes = {}, newInstance = true) {
+	constructor($attributes: any = {}, newInstance: boolean = true) {
 		super()
 		Object.defineProperty(this, kQuery, { value: null, writable: true });
 		const instance = newInstance == true ? this.newInstance($attributes, this.$exists, false) : this;
@@ -191,7 +191,11 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 	 * @param {*} obj
 	 * @returns {any}
 	 */
-	fillable(obj = {}) {
+	fillable(obj: any = {}): this {
+		if (Array.isArray(obj)) {
+			this.$fillable = obj;
+			return this;
+		}
 		let fillKeys = Object.keys(obj)
 		let $massAssign = intersection(this.$fillable, fillKeys)
 		if ($massAssign.length == 0 && fillKeys.length) {
@@ -209,6 +213,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 		}
 
+		return this;
 	}
 
 	/**
@@ -1579,4 +1584,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 }
 
-export default Macroable(Model);
+const MacroableModel = Macroable(Model);
+export { Model, MacroableModel };
+export default MacroableModel;

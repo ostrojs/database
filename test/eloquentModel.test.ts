@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, beforeEach, afterAll } from "@jest/globals";
 const { createDatabaseManager } = require('./setup');
 const _Model = require('../src/eloquent/model');
 const Model = _Model.default || _Model;
@@ -377,6 +378,20 @@ describe('Eloquent Model Comprehensive Unit Tests', () => {
 
             const createdRes = await User.create({ name: 'Static User', email: 'static@test.com' });
             expect(createdRes.name).toBe('STATIC USER');
+
+            const getRes = await User.get();
+            expect(getRes.length).toBeGreaterThan(0);
+
+            const inserted = await User.insert({ name: 'Inserted User', email: 'inserted@test.com' });
+            expect(inserted).toBeDefined();
+
+            const fon = await User.firstOrNew({ email: 'fon@test.com' }, { name: 'FON User' });
+            expect(fon.name).toBe('FON USER');
+            expect(fon.$exists).toBe(false);
+
+            const uoc = await User.updateOrCreate({ email: 'uoc@test.com' }, { name: 'UOC User' });
+            expect(uoc.name).toBe('UOC USER');
+            expect(uoc.id).toBeDefined();
         });
     });
 

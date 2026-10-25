@@ -12,14 +12,18 @@ class MigrationCreator {
     public $files: any;
     public $customStubPath: any;
 
+    public $app: any;
+
     /**
      * Create a new instance.
      * @param {*} $files
      * @param {*} $customStubPath
+     * @param {*} $app
      */
-    constructor($files: any, $customStubPath: any = null) {
+    constructor($files: any, $customStubPath: any = null, $app: any = null) {
         this.$files = $files;
         this.$customStubPath = $customStubPath;
+        this.$app = $app;
     }
 
     /**
@@ -65,6 +69,14 @@ class MigrationCreator {
      */
     public isTypeScript($path: string = ''): boolean {
         try {
+            if (this.$app && this.$app['config']) {
+                const configVal = typeof this.$app['config'].get === 'function' ?
+                    this.$app['config'].get('app.typescript') :
+                    this.$app['config']['app.typescript'];
+                if (typeof configVal === 'boolean') {
+                    return configVal;
+                }
+            }
             const fs = require('fs');
             if (this.$customStubPath && (this.$customStubPath.endsWith('.ts.stub') || fs.existsSync(path.join(path.dirname(this.$customStubPath), 'tsconfig.json')))) {
                 return true;
