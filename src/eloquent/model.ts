@@ -72,7 +72,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 	 * @param {*} $attributes
 	 * @param {*} newInstance
 	 */
-	constructor($attributes = {}, newInstance = true) {
+	constructor($attributes: any = {}, newInstance: boolean = true) {
 		super()
 		Object.defineProperty(this, kQuery, { value: null, writable: true });
 		const instance = newInstance == true ? this.newInstance($attributes, this.$exists, false) : this;
@@ -158,12 +158,44 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 		this[kResolver] = null;
 	}
 
+	public static with<T extends Model>(this: new (...args: any[]) => T, ...relations: any[]): T {
+		return (this as any).__call(this, 'with', relations);
+	}
+
+	public static query<T extends Model>(this: new (...args: any[]) => T): T {
+		return (this as any).__call(this, 'newQuery', []);
+	}
+
+	public static where<T extends Model>(this: new (...args: any[]) => T, ...args: any[]): T {
+		return (this as any).__call(this, 'where', args);
+	}
+
+	public static find<T extends Model>(this: new (...args: any[]) => T, id: any, columns?: any[]): Promise<T | null> {
+		return (this as any).__call(this, 'find', [id, columns]);
+	}
+
+	public static first<T extends Model>(this: new (...args: any[]) => T, columns?: any[]): Promise<T | null> {
+		return (this as any).__call(this, 'first', [columns]);
+	}
+
+	public static all<T extends Model>(this: new (...args: any[]) => T, columns?: any[]): Promise<T[]> {
+		return (this as any).__call(this, 'get', [columns]);
+	}
+
+	public static create<T extends Model>(this: new (...args: any[]) => T, attributes: Record<string, any>): Promise<T> {
+		return (this as any).__call(this, 'create', [attributes]);
+	}
+
 	/**
 	 * fillable method.
 	 * @param {*} obj
 	 * @returns {any}
 	 */
-	fillable(obj = {}) {
+	fillable(obj: any = {}): this {
+		if (Array.isArray(obj)) {
+			this.$fillable = obj;
+			return this;
+		}
 		let fillKeys = Object.keys(obj)
 		let $massAssign = intersection(this.$fillable, fillKeys)
 		if ($massAssign.length == 0 && fillKeys.length) {
@@ -181,6 +213,7 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 		}
 
+		return this;
 	}
 
 	/**
@@ -1551,4 +1584,6 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 }
 
-export default Macroable(Model);
+const MacroableModel = Macroable(Model);
+export { Model, MacroableModel };
+export default MacroableModel;

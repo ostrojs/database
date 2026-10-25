@@ -87,6 +87,9 @@ class CreateSchema extends BaseCommand {
      */
     public async writeMigration($name: string, $table: string, $create: any) {
         let migrationName = snakeCase(camelCase(plural($name)));
+        if (this.$creator && !this.$creator.$app) {
+            this.$creator.$app = this.$app;
+        }
         let $file = await this.$creator.create(
             migrationName, this.getMigrationPath(), $table, $create
         );

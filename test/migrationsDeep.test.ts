@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, afterEach, jest } from "@jest/globals";
 'use strict';
 
 const { createDatabaseManager } = require('./setup');
@@ -5,8 +6,8 @@ const _DatabaseMigrationRepository = require('../src/migrations/databaseMigratio
 const DatabaseMigrationRepository = _DatabaseMigrationRepository.default || _DatabaseMigrationRepository;
 const _Migrator = require('../src/migrations/migrator');
 const Migrator = _Migrator.default || _Migrator;
-const path = require('path');
-const fs = require('fs');
+const path = require('node:path');
+const fs = require('node:fs');
 
 describe('Migrations & Repository Deep Tests', () => {
 

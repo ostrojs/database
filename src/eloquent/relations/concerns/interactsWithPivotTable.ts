@@ -503,9 +503,9 @@ class InteractsWithPivotTable {
      * @param {*} $columns
      * @returns {any}
      */
-    public withPivot($columns: any[]) {
+    public withPivot(...$columns: any[]) {
         this.$pivotColumns = this.$pivotColumns.concat(
-            Array.isArray($columns) ? $columns : [...arguments]
+            Array.isArray($columns[0]) ? $columns[0] : $columns
         );
 
         return this;

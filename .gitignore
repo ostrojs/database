@@ -1,8 +1,8 @@
 node_modules/
 coverage/
 build/
-package-lock.json
 .DS_Store
 AGY.md
 AYG.md
 build_old/
+package-lock.json

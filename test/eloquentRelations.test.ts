@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, beforeEach, afterAll, jest } from "@jest/globals";
 const { createDatabaseManager } = require('./setup');
 const _Model = require('../src/eloquent/model');
 const Model = _Model.default || _Model;
@@ -1206,6 +1207,26 @@ describe('Eloquent Relationships Comprehensive Unit Tests', () => {
             };
             const customRel = new Relation(mockQuery, postUser);
             expect(customRel.fluentMethod()).toBe(customRel);
+        });
+
+        test('resolveRelatedModel resolves module object with default and tilde string path', () => {
+            const user = new User();
+            // Test module object with default function
+            const resolvedObj = user.resolveRelatedModel({ default: Profile });
+            expect(resolvedObj).toBe(Profile);
+
+            // Test tilde string path with existing fixture file
+            const fs = require('node:fs');
+            const path = require('node:path');
+            const fixturePath = path.join(process.cwd(), 'test', 'fixtures');
+            if (!fs.existsSync(fixturePath)) {
+                fs.mkdirSync(fixturePath, { recursive: true });
+            }
+            const fakeModelFile = path.join(fixturePath, 'mockRelModel.js');
+            fs.writeFileSync(fakeModelFile, 'module.exports = class MockRelModel {};');
+            const relLoaded = user.resolveRelatedModel('~/test/fixtures/mockRelModel');
+            expect(typeof relLoaded).toBe('function');
+            fs.unlinkSync(fakeModelFile);
         });
     });
 
