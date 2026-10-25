@@ -70,7 +70,7 @@ class HasManyThrough extends implement(Relation,SupportsDefaultModels, CanBeOneO
      * @returns {any}
      */
     public getQualifiedParentKeyName() {
-        return this.$parent.qualifyColumn(this.$secondLocalKey);
+        return this.$throughParent.qualifyColumn(this.$secondLocalKey);
     }
 
     /**
@@ -408,7 +408,7 @@ class HasManyThrough extends implement(Relation,SupportsDefaultModels, CanBeOneO
             models = await builder.eagerLoadRelations(models);
         }
 
-        return this.$related.newCollection(models);
+        return models;
     }
 
     /**

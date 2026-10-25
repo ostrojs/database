@@ -263,13 +263,13 @@ describe('Eloquent Relationships Comprehensive Unit Tests', () => {
             // syncWithPivotValues
             await user.roles().syncWithPivotValues([editorRole.id], { level: 'manager' });
             roles = await user.roles().withPivot('level').get();
-            const editorFound = roles.find(r => r.name === 'Editor');
+            const editorFound = roles.all().find(r => r.name === 'Editor');
             expect(editorFound.relation('pivot').level).toBe('manager');
 
             // updateExistingPivot
             await user.roles().updateExistingPivot(editorRole.id, { level: 'senior_manager' });
             roles = await user.roles().withPivot('level').get();
-            expect(roles.find(r => r.name === 'Editor').relation('pivot').level).toBe('senior_manager');
+            expect(roles.all().find(r => r.name === 'Editor').relation('pivot').level).toBe('senior_manager');
 
             // as accessor & getPivotAccessor
             const customAccessRel = user.roles().as('custom_pivot');

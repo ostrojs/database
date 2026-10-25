@@ -218,7 +218,7 @@ class HasRelationships {
 
         $secondKey = $secondKey || $through.getForeignKey();
 
-        const hasManyThroughRelation = this.newHasManyThrough(
+        return this.newHasManyThrough(
             this.newRelatedInstance($related).newQuery(),
             this,
             $through,
@@ -227,10 +227,6 @@ class HasRelationships {
             $localKey || this.getKeyName(),
             $secondLocalKey || $through.getKeyName()
         );
-        if (this.$exists && !getCallerFunctionName('eagerLoadRelation')) {
-            hasManyThroughRelation.addEagerConstraints(new Collect([this]));
-        }
-        return hasManyThroughRelation
     }
 
     /**

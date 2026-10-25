@@ -362,17 +362,19 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 	 * @returns {any}
 	 */
 	first($columns?: any) {
-		this.$query.limit(1)
-		// if (this.$attributes && Object.keys(this.$attributes).length) {
-		// 	this.where(this.$attributes)
-		// }
+		this.$query.limit(1);
 		return this.get().then(res => {
-			if (res.length) {
-				return res[0]
+			if (!res) {
+				return null;
 			}
-			return null
-		})
-
+			if (typeof res.first === 'function') {
+				return res.first() || null;
+			}
+			if (res.length) {
+				return res[0];
+			}
+			return null;
+		});
 	}
 
 	/**
