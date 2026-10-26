@@ -16,17 +16,17 @@ class FreshCommand extends Command {
 
     public get $options(): any[] {
         return [
-        this.createOption('--database [database]', 'The database connection to use'),
-        this.createOption('--drop-views', 'Drop all tables and views'),
-        this.createOption('--drop-types', 'Drop all tables and types (Postgres only)'),
-        this.createOption('--force', 'Force the operation to run when in production'),
-        this.createOption('--path', 'The path(s) to the migrations files to be executed'),
-        this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
-        this.createOption('--schema-path', 'The path to a schema dump file'),
-        this.createOption('--seed', 'Indicates if the seed task should be re-run'),
-        this.createOption('--seeder', 'The class name of the root seeder'),
-        this.createOption('--step', 'Force the migrations to be run so they can be rolled back individually'),
-    ];
+            this.createOption('--database [database]', 'The database connection to use'),
+            this.createOption('--drop-views', 'Drop all tables and views'),
+            this.createOption('--drop-types', 'Drop all tables and types (Postgres only)'),
+            this.createOption('--force', 'Force the operation to run when in production'),
+            this.createOption('--path', 'The path(s) to the migrations files to be executed'),
+            this.createOption('--realpath', 'Indicate any provided migration file paths are pre-resolved absolute paths'),
+            this.createOption('--schema-path', 'The path to a schema dump file'),
+            this.createOption('--seed', 'Indicates if the seed task should be re-run'),
+            this.createOption('--seeder', 'The class name of the root seeder'),
+            this.createOption('--step', 'Force the migrations to be run so they can be rolled back individually'),
+        ];
     }
 
     /**
