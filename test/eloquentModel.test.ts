@@ -248,6 +248,26 @@ describe('Eloquent Model Comprehensive Unit Tests', () => {
 
             await User.destroy(u2.id);
             expect(await User.find(u2.id)).toBeNull();
+
+            // Test destroy with array of ids
+            const u3 = await User.create({ name: 'U3', email: 'u3@example.com' });
+            const u4 = await User.create({ name: 'U4', email: 'u4@example.com' });
+            const deletedCount = await User.destroy([u3.id, u4.id]);
+            expect(deletedCount).toBe(2);
+            expect(await User.find(u3.id)).toBeNull();
+            expect(await User.find(u4.id)).toBeNull();
+
+            // Test destroy with multiple arguments
+            const u5 = await User.create({ name: 'U5', email: 'u5@example.com' });
+            const u6 = await User.create({ name: 'U6', email: 'u6@example.com' });
+            const multiDeleted = await User.destroy(u5.id, u6.id);
+            expect(multiDeleted).toBe(2);
+            expect(await User.find(u5.id)).toBeNull();
+            expect(await User.find(u6.id)).toBeNull();
+
+            // Test destroy with empty array
+            const emptyDeleted = await User.destroy([]);
+            expect(emptyDeleted).toBe(0);
         });
 
         test('find(), findOrFail(), first(), firstOrFail() lookup behaviors', async () => {

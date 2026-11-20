@@ -20,7 +20,7 @@ class PostgresConnector {
             client: 'pg',
             version: config.version,
             connection: {
-                host: config.host,
+                host: Array.isArray(config.host) ? config.host[0] : config.host,
                 port: config.port,
                 user: config.username,
                 database: database,

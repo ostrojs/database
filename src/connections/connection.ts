@@ -268,6 +268,22 @@ class Connection extends Macroable {
 
         return $result;
     }
+
+    /**
+     * handleQueryException method.
+     * @param {*} e
+     * @param {*} query
+     * @param {*} bindings
+     * @param {*} callback
+     * @returns {any}
+     */
+    public handleQueryException(e: any, query: any, bindings: any[], callback: any) {
+        if (typeof (this as any).causedByLostConnection === 'function' && (this as any).causedByLostConnection(e)) {
+            this.reconnect();
+            return this.raw(query, bindings, callback);
+        }
+        throw e;
+    }
     /**
      * reconnect method.
      * @returns {any}
@@ -505,7 +521,7 @@ class Connection extends Macroable {
     public initiateAutoCloseConnection() {
         let connectionCount = 0;
         let closeTime = this.$config['connectionCloseTime'] || 5000;
-        let destroy = this.$config['destroy'] || true;
+        let destroy = this.$config['destroy'] !== undefined ? Boolean(this.$config['destroy']) : (this.$config['autoClose'] !== undefined ? Boolean(this.$config['autoClose']) : false);
 
         const disconnectConnection = debounce(() => {
             if (destroy) {
@@ -523,8 +539,15 @@ class Connection extends Macroable {
         this.$connection.client.acquireConnection = () => {
             connectionCount++;
             disconnectConnection.clear();
-            if (!this.$activeConnection) {
-                this.$connection.initialize();
+            if (!this.$activeConnection || !this.$connection?.client?.pool || (this.$connection.client.pool as any).destroyed) {
+                if (this.$connection?.client) {
+                    (this.$connection.client as any).pool = undefined;
+                }
+                if (typeof this.$connection.initialize === 'function') {
+                    this.$connection.initialize();
+                } else if (typeof this.$connection.client?.initializePool === 'function') {
+                    this.$connection.client.initializePool();
+                }
                 this.$activeConnection = true;
             }
             return acquireConnection();
@@ -534,7 +557,7 @@ class Connection extends Macroable {
             if (connectionCount > 0) {
                 connectionCount--;
             }
-            if (connectionCount == 0) {
+            if (connectionCount === 0 && destroy) {
                 disconnectConnection();
             }
         };

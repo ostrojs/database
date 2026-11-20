@@ -74,8 +74,8 @@ class Builder {
 	 * whereNot method.
 	 * @returns {any}
 	 */
-	whereNot() {
-		this.getQueryBuilder().whereNot(...arguments)
+	whereNot(...args: any[]) {
+		this.getQueryBuilder().whereNot(...args)
 		return this;
 	}
 
@@ -83,8 +83,8 @@ class Builder {
 	 * whereIn method.
 	 * @returns {any}
 	 */
-	whereIn() {
-		this.getQueryBuilder().whereIn(...arguments)
+	whereIn(...args: any[]) {
+		this.getQueryBuilder().whereIn(...args)
 		return this;
 	}
 
@@ -92,8 +92,8 @@ class Builder {
 	 * whereNotIn method.
 	 * @returns {any}
 	 */
-	whereNotIn() {
-		this.getQueryBuilder().whereNotIn(...arguments)
+	whereNotIn(...args: any[]) {
+		this.getQueryBuilder().whereNotIn(...args)
 		return this;
 	}
 
@@ -101,8 +101,8 @@ class Builder {
 	 * whereNull method.
 	 * @returns {any}
 	 */
-	whereNull() {
-		this.getQueryBuilder().whereNull(...arguments)
+	whereNull(...args: any[]) {
+		this.getQueryBuilder().whereNull(...args)
 		return this;
 	}
 
@@ -110,8 +110,8 @@ class Builder {
 	 * whereNotNull method.
 	 * @returns {any}
 	 */
-	whereNotNull() {
-		this.getQueryBuilder().whereNotNull(...arguments)
+	whereNotNull(...args: any[]) {
+		this.getQueryBuilder().whereNotNull(...args)
 		return this;
 	}
 
@@ -141,8 +141,8 @@ class Builder {
 	 * whereBetween method.
 	 * @returns {any}
 	 */
-	whereBetween() {
-		this.getQueryBuilder().whereBetween(...arguments)
+	whereBetween(...args: any[]) {
+		this.getQueryBuilder().whereBetween(...args)
 		return this;
 	}
 
@@ -150,8 +150,8 @@ class Builder {
 	 * whereNotBetween method.
 	 * @returns {any}
 	 */
-	whereNotBetween() {
-		this.getQueryBuilder().whereNotBetween(...arguments)
+	whereNotBetween(...args: any[]) {
+		this.getQueryBuilder().whereNotBetween(...args)
 		return this;
 	}
 
@@ -159,8 +159,8 @@ class Builder {
 	 * whereRaw method.
 	 * @returns {any}
 	 */
-	whereRaw() {
-		this.getQueryBuilder().whereRaw(...arguments)
+	whereRaw(...args: any[]) {
+		this.getQueryBuilder().whereRaw(...args)
 		return this;
 	}
 
@@ -168,8 +168,8 @@ class Builder {
 	 * wrap method.
 	 * @returns {any}
 	 */
-	wrap() {
-		this.getQueryBuilder().wrap(...arguments)
+	wrap(...args: any[]) {
+		this.getQueryBuilder().wrap(...args)
 		return this;
 	}
 
@@ -177,8 +177,8 @@ class Builder {
 	 * orWhere method.
 	 * @returns {any}
 	 */
-	orWhere() {
-		this.getQueryBuilder().orWhere(...arguments)
+	orWhere(...args: any[]) {
+		this.getQueryBuilder().orWhere(...args)
 		return this;
 	}
 
@@ -186,8 +186,8 @@ class Builder {
 	 * orWhereNot method.
 	 * @returns {any}
 	 */
-	orWhereNot() {
-		this.getQueryBuilder().orWhereNot(...arguments)
+	orWhereNot(...args: any[]) {
+		this.getQueryBuilder().orWhereNot(...args)
 		return this;
 	}
 
@@ -195,8 +195,8 @@ class Builder {
 	 * orWhereIn method.
 	 * @returns {any}
 	 */
-	orWhereIn() {
-		this.getQueryBuilder().orWhereIn(...arguments)
+	orWhereIn(...args: any[]) {
+		this.getQueryBuilder().orWhereIn(...args)
 		return this;
 	}
 
@@ -204,8 +204,8 @@ class Builder {
 	 * orWhereNotIn method.
 	 * @returns {any}
 	 */
-	orWhereNotIn() {
-		this.getQueryBuilder().orWhereNotIn(...arguments)
+	orWhereNotIn(...args: any[]) {
+		this.getQueryBuilder().orWhereNotIn(...args)
 		return this;
 	}
 

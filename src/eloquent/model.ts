@@ -186,6 +186,10 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 		return (this as any).__call(this, 'create', [attributes]);
 	}
 
+	public static destroy<T extends Model>(this: new (...args: any[]) => T, ...ids: any[]): Promise<number> {
+		return (this as any).__call(this, 'destroy', ids);
+	}
+
 	/**
 	 * fillable method.
 	 * @param {*} obj
@@ -1147,15 +1151,23 @@ class Model extends implement(ModelInterface, Query, GuardsAttributes, QueriesRe
 
 	/**
 	 * destroy method.
-	 * @param {*} id
-	 * @returns {any}
+	 * @param {*} ids
+	 * @returns {Promise<number>}
 	 */
-	destroy(id) {
-		let where = {
-			[this.$primaryKey]: id
+	async destroy(...ids: any[]): Promise<number> {
+		if (ids.length === 1 && Array.isArray(ids[0])) {
+			ids = ids[0];
 		}
-		this.where(where)
-		return this.delete();
+		if (ids.length === 0) {
+			return 0;
+		}
+		if (ids.length === 1) {
+			this.where(this.$primaryKey, ids[0]);
+		} else {
+			this.whereIn(this.$primaryKey, ids);
+		}
+		const count = await this.$query.delete();
+		return typeof count === 'number' ? count : (Array.isArray(count) ? count.length : Number(count) || 0);
 	}
 
 	/**
