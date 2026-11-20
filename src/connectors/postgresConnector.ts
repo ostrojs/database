@@ -29,7 +29,7 @@ class PostgresConnector {
             },
             pool: config.pool,
             acquireConnectionTimeout: config.connection_timeout,
-            searchPath: Array.isArray(config.schema) ? config.schema : [config.schema],
+            searchPath: Array.isArray(config.schema) ? config.schema : (config.schema ? [config.schema] : ['public']),
             useNullAsDefault: config.useNullAsDefault != undefined ? config.useNullAsDefault : true,
             asyncStackTraces: config.asyncStackTraces != undefined ? config.asyncStackTraces : true
         });

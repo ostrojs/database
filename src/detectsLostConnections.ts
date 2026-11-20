@@ -56,6 +56,11 @@ class DetectsLostConnections {
         'SQLSTATE[HY000] [2002] The requested address is not valid in its context',
         'SQLSTATE[HY000] [2002] A socket operation was attempted to an unreachable network',
         'SQLSTATE[HY000]: General error: 3989',
+        'deadlock detected',
+        'Resource deadlock avoided',
+        'canceling statement due to lock timeout',
+        'canceling statement due to user request',
+        'Connection terminated unexpectedly',
     ];
 
     /**
@@ -65,9 +70,10 @@ class DetectsLostConnections {
      * @returns True if error is caused by lost connection.
      */
     public causedByLostConnection(error: any): boolean {
-        const message: string = typeof error === 'string' ? error : error?.message;
+        const message: string = typeof error === 'string' ? error : (error?.message || '');
+        if (!message) return false;
 
-        return this.$errorMessages.includes(message);
+        return this.$errorMessages.some(err => message.toLowerCase().includes(err.toLowerCase()));
     }
 }
 

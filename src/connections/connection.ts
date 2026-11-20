@@ -5,7 +5,10 @@ import QueryBuilder from '../query/builder';
 import QueryGrammar from '../query/grammars/grammar';
 import Processor from '../query/processors/processor';
 import SchemaBuilder from '../schema/builder';
+import DetectsLostConnections from '../detectsLostConnections';
 import { debounce, is_callable, is_null } from '@ostro/support/function';
+
+const lostConnectionDetector = new DetectsLostConnections();
 
 /**
  * Class LostConnectionException.
@@ -278,7 +281,7 @@ class Connection extends Macroable {
      * @returns {any}
      */
     public handleQueryException(e: any, query: any, bindings: any[], callback: any) {
-        if (typeof (this as any).causedByLostConnection === 'function' && (this as any).causedByLostConnection(e)) {
+        if (lostConnectionDetector.causedByLostConnection(e)) {
             this.reconnect();
             return this.raw(query, bindings, callback);
         }
